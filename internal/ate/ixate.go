@@ -1057,7 +1057,7 @@ func (ix *ixATE) StopProtocols(ctx context.Context) error {
 		return fmt.Errorf("could not stop protocols: %w", err)
 	}
 	ix.operState = operStateOff
-	sleepFn(30 * time.Second)
+	sleepFn(90 * time.Second)
 	return nil
 }
 
