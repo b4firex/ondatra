@@ -61,7 +61,7 @@ const (
 	// OperStatusFailure indicates a failed operation.
 	OperStatusFailure OperStatus = "failure"
 
-	importRetries = 5
+	importRetries = 10
 
 	// IxNetwork has an undocumented maximum number of DeviceGroups.
 	maxIntfs = 256
@@ -84,8 +84,8 @@ var (
 
 	// TODO(team): Lower timeouts after chassis hardware upgrades.
 	peersImportTimeout   = time.Minute
-	trafficImportTimeout = 4 * time.Minute
-	topoImportTimeout    = 3 * time.Minute
+	trafficImportTimeout = 8 * time.Minute
+	topoImportTimeout    = 6 * time.Minute
 
 	sleepFn                        = time.Sleep
 	syncRouteTableFilesAndImportFn = syncRouteTableFilesAndImport
@@ -475,7 +475,7 @@ func (ix *ixATE) importConfig(ctx context.Context, node ixconfig.IxiaCfgNode, ov
 		log.Infof("IxNetwork config push attempt logged to file %s", filePath)
 	}()
 
-	const importDelay = 15 * time.Second
+	const importDelay = 60 * time.Second
 	importCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -722,7 +722,7 @@ func (ix *ixATE) PushTopology(ctx context.Context, top *Topology) error {
 		}
 	}
 	// Avoid a possible race condition with repeated config imports (b/191984474).
-	sleepFn(45 * time.Second)
+	sleepFn(90 * time.Second)
 	if err := ix.updateTopology(ctx, top.Interfaces); err != nil {
 		return err
 	}
@@ -784,7 +784,7 @@ func (r *lspRsp) Up() bool {
 }
 
 func checkUp(ctx context.Context, ix *ixATE, nodes []ixconfig.IxiaCfgNode, r stateRsp, retries int) ([]ixconfig.IxiaCfgNode, error) {
-	const retryWait = 10 * time.Second
+	const retryWait = 30 * time.Second
 	notUp := func(nodes []ixconfig.IxiaCfgNode) ([]ixconfig.IxiaCfgNode, error) {
 		var notUp []ixconfig.IxiaCfgNode
 		for _, n := range nodes {
@@ -841,7 +841,7 @@ func failedNodesWithPorts(ix *ixATE, msg string, nodes []ixconfig.IxiaCfgNode, n
 // Returns a list of ports where protocols did not start (if there are no other errors).
 func validateProtocolStart(ctx context.Context, ix *ixATE) ([]string, error) {
 	const (
-		retryWait      = 10 * time.Second
+		retryWait      = 30 * time.Second
 		maxRetriesLSPs = 60
 	)
 	maxRetriesProtocols := 10
