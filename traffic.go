@@ -169,13 +169,13 @@ func (f *Flow) WithFrameRatePct(pct float64) *Flow {
 
 // WithFrameRateFPS sets the flow's rate to be n frames per second.
 func (f *Flow) WithFrameRateFPS(n uint64) *Flow {
-	f.pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Fps{Fps: 100}}
+	f.pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Fps{Fps: n}}
 	return f
 }
 
 // WithFrameRateBPS sets the flow's rate to be n bits per second.
 func (f *Flow) WithFrameRateBPS(n uint64) *Flow {
-	f.pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Bps{Bps: 1000}}
+	f.pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Bps{Bps: n}}
 	return f
 }
 
