@@ -233,7 +233,7 @@ func (ix *IxWeb) request(ctx context.Context, method httpMethod, path, contentTy
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not read response body: %w", err)
 	}
-	log.V(1).Infof("Response to %q: %q", req.URL.Path, data)
+	//log.V(1).Infof("Response to %q: %q", req.URL.Path, data)
 	status := resp.StatusCode
 	if status < 200 || status > 299 {
 		return 0, nil, fmt.Errorf("error status code %d on request %+v, response: %q", status, req, data)
