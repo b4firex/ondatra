@@ -59,6 +59,7 @@ func (tr *Traffic) Start(t testing.TB, flows ...*Flow) {
 func (tr *Traffic) start(flows []*Flow) error {
 	var pbs []*opb.Flow
 	for _, f := range flows {
+		f.pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Fps{Fps: 100}}
 		pbs = append(pbs, f.pb)
 	}
 	return ate.StartTraffic(context.Background(), tr.ate, pbs)
