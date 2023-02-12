@@ -844,7 +844,7 @@ func validateProtocolStart(ctx context.Context, ix *ixATE) ([]string, error) {
 		retryWait      = 30 * time.Second
 		maxRetriesLSPs = 60
 	)
-	maxRetriesProtocols := 10
+	maxRetriesProtocols := 30
 	if len(ix.routeTableToIxFile) > 0 {
 		// Protocols may need extra time to start on large-scale route imports.
 		maxRetriesProtocols = 30
