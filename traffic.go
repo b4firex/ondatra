@@ -34,7 +34,7 @@ type Traffic struct {
 }
 
 const (
-	simFixedRate = 100
+	simFixedRate = 80
 )
 
 func (tr *Traffic) String() string {
