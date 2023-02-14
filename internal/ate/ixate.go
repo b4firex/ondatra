@@ -475,7 +475,7 @@ func (ix *ixATE) importConfig(ctx context.Context, node ixconfig.IxiaCfgNode, ov
 		log.Infof("IxNetwork config push attempt logged to file %s", filePath)
 	}()
 
-	const importDelay = 60 * time.Second
+	const importDelay = 180 * time.Second
 	importCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
