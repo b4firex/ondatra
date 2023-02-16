@@ -32,7 +32,7 @@ import (
 )
 
 const (
-	viewReadyAttempts = 30
+	viewReadyAttempts = 60
 
 	// EgressStatsCaption is the name of the egress statistics view.
 	EgressStatsCaption = "EgressStatView"
@@ -360,7 +360,7 @@ func (v *StatView) fetchEgressTableFromPages(ctx context.Context) (StatTable, er
 }
 
 func (v *StatView) waitForReady(ctx context.Context) error {
-	const delay = 10 * time.Second
+	const delay = 5 * time.Second
 	dataPath := path.Join(v.path(), "data")
 	isReady := struct {
 		IsReady bool `json:"isReady"`
