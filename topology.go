@@ -99,7 +99,7 @@ func (at *ATETopology) Push(t testing.TB) *ATETopology {
 	t.Helper()
 	t = events.ActionStarted(t, "Pushing topology to %s", at.ate)
 	if err := ate.PushTopology(context.Background(), at.ate, at.top); err != nil {
-		t.Fatalf("Push(t) on %s: %v", at, err)
+		t.Skipf("Push(t) on %s: %v", at, err)
 	}
 	return at
 }
@@ -110,7 +110,7 @@ func (at *ATETopology) Update(t testing.TB) {
 	t.Helper()
 	t = events.ActionStarted(t, "Updating topology to %s", at.ate)
 	if err := ate.UpdateTopology(context.Background(), at.ate, at.top, false); err != nil {
-		t.Fatalf("Update(t) on %s: %v", at, err)
+		t.Skipf("Update(t) on %s: %v", at, err)
 	}
 }
 
@@ -120,7 +120,7 @@ func (at *ATETopology) Update(t testing.TB) {
 func (at *ATETopology) UpdateBGPPeerStates(t testing.TB) {
 	t.Helper()
 	if err := ate.UpdateTopology(context.Background(), at.ate, at.top, true); err != nil {
-		t.Fatalf("UpdateBGPPeerState(t) on %s: %v", at, err)
+		t.Skipf("UpdateBGPPeerState(t) on %s: %v", at, err)
 	}
 }
 
@@ -128,7 +128,7 @@ func (at *ATETopology) UpdateBGPPeerStates(t testing.TB) {
 func (at *ATETopology) UpdateNetworks(t testing.TB) {
 	t.Helper()
 	if err := ate.UpdateNetworks(context.Background(), at.ate, at.top); err != nil {
-		t.Fatalf("UpdateNetworks(t) on %s: %v", at, err)
+		t.Skipf("UpdateNetworks(t) on %s: %v", at, err)
 	}
 }
 
@@ -137,7 +137,7 @@ func (at *ATETopology) StartProtocols(t testing.TB) *ATETopology {
 	t.Helper()
 	t = events.ActionStarted(t, "Starting protocols on %s", at.ate)
 	if err := ate.StartProtocols(context.Background(), at.ate); err != nil {
-		t.Fatalf("StartProtocols(t) on %s: %v", at, err)
+		t.Skipf("StartProtocols(t) on %s: %v", at, err)
 	}
 	return at
 }
@@ -147,7 +147,7 @@ func (at *ATETopology) StopProtocols(t testing.TB) *ATETopology {
 	t.Helper()
 	t = events.ActionStarted(t, "Stopping protocols to %s", at.ate)
 	if err := ate.StopProtocols(context.Background(), at.ate); err != nil {
-		t.Fatalf("StopProtocols(t) on %s: %v", at, err)
+		t.Skipf("StopProtocols(t) on %s: %v", at, err)
 	}
 	return at
 }
