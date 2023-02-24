@@ -150,7 +150,7 @@ func endpointPBs(eps []Endpoint) []*opb.Flow_Endpoint {
 	var epPBs []*opb.Flow_Endpoint
 	for _, ep := range eps {
 		if ep == nil {
-			log.Skipf("nil endpoint not allowed: %v", eps)
+			log.Fatalf("nil endpoint not allowed: %v", eps)
 		}
 		epPBs = append(epPBs, ep.EndpointPB())
 	}
