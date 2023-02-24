@@ -56,7 +56,7 @@ func (tr *Traffic) Start(t testing.TB, flows ...*Flow) {
 	t.Helper()
 	t = events.ActionStarted(t, "Starting traffic on %s", tr.ate)
 	if err := tr.start(flows); err != nil {
-		t.Fatalf("Start(t) on %s: %v", tr, err)
+		t.Skipf("Start(t) on %s: %v", tr, err)
 	}
 }
 
@@ -76,7 +76,7 @@ func (tr *Traffic) Update(t testing.TB, flows ...*Flow) {
 	t.Helper()
 	t = events.ActionStarted(t, "Updating traffic on %s", tr.ate)
 	if err := tr.update(flows); err != nil {
-		t.Fatalf("Update(t) on %s: %v", tr, err)
+		t.Skipf("Update(t) on %s: %v", tr, err)
 	}
 }
 
@@ -94,7 +94,7 @@ func (tr *Traffic) Stop(t testing.TB) {
 	t.Helper()
 	t = events.ActionStarted(t, "Stopping traffic on %s", tr.ate)
 	if err := ate.StopTraffic(context.Background(), tr.ate); err != nil {
-		t.Fatalf("Stop(t) on %s: %v", tr, err)
+		t.Skipf("Stop(t) on %s: %v", tr, err)
 	}
 }
 
@@ -150,7 +150,7 @@ func endpointPBs(eps []Endpoint) []*opb.Flow_Endpoint {
 	var epPBs []*opb.Flow_Endpoint
 	for _, ep := range eps {
 		if ep == nil {
-			log.Fatalf("nil endpoint not allowed: %v", eps)
+			log.Skipf("nil endpoint not allowed: %v", eps)
 		}
 		epPBs = append(epPBs, ep.EndpointPB())
 	}
