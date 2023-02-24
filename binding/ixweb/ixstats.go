@@ -360,7 +360,7 @@ func (v *StatView) fetchEgressTableFromPages(ctx context.Context) (StatTable, er
 }
 
 func (v *StatView) waitForReady(ctx context.Context) error {
-	const delay = 5 * time.Second
+	const delay = 10 * time.Second
 	dataPath := path.Join(v.path(), "data")
 	isReady := struct {
 		IsReady bool `json:"isReady"`
