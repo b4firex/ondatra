@@ -17,6 +17,7 @@ package gnmi
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 	"time"
 
@@ -127,7 +128,7 @@ func Get[T any](t testing.TB, dev DeviceOrOpts, q ygnmi.SingletonQuery[T]) T {
 	c := newClient(t, dev, "Get")
 	v, err := ygnmi.Get(createContext(dev), c, q, createGetOpts[T](dev, q)...)
 	if err != nil {
-		if _, ok := dev.(*ATEDevice); ok {
+		if reflect.TypeOf(dev).String() == "*ondatra.ATEDevice" {
 			t.Skipf("Get(t) on %s at %v: %v", dev, q, err)
 		} else {
 			t.Fatalf("Get(t) on %s at %v: %v", dev, q, err)
