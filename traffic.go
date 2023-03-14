@@ -63,7 +63,7 @@ func (tr *Traffic) Start(t testing.TB, flows ...*Flow) {
 func (tr *Traffic) start(flows []*Flow) error {
 	var pbs []*opb.Flow
 	for i := range flows {
-		flows[i].pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Fps{Fps: simFixedRate}}
+		//flows[i].pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Fps{Fps: simFixedRate}}
 		pbs = append(pbs, flows[i].pb)
 	}
 	return ate.StartTraffic(context.Background(), tr.ate, pbs)
@@ -83,7 +83,7 @@ func (tr *Traffic) Update(t testing.TB, flows ...*Flow) {
 func (tr *Traffic) update(flows []*Flow) error {
 	var pbs []*opb.Flow
 	for i := range flows {
-		flows[i].pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Fps{Fps: simFixedRate}}
+		//flows[i].pb.FrameRate = &opb.FrameRate{Type: &opb.FrameRate_Fps{Fps: simFixedRate}}
 		pbs = append(pbs, flows[i].pb)
 	}
 	return ate.UpdateTraffic(context.Background(), tr.ate, pbs)
