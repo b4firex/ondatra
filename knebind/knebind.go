@@ -51,6 +51,8 @@ import (
 	p4pb "github.com/p4lang/p4runtime/go/p4/v1"
 )
 
+const grpcDialTimeout = 30 * time.Second
+
 // To be stubbed out by unit tests
 var (
 	userCurrFn = user.Current
@@ -93,7 +95,7 @@ func (b *Bind) Reserve(ctx context.Context, tb *opb.Testbed, runTime time.Durati
 	if err != nil {
 		return nil, err
 	}
-	res, err := solver.Solve(tb, resp.GetTopology(), partial)
+	res, err := solver.Solve(ctx, tb, resp.GetTopology(), partial)
 	if err != nil {
 		return nil, err
 	}
@@ -221,6 +223,8 @@ func (d *kneDUT) dialGRPC(ctx context.Context, serviceName string, opts ...grpc.
 		opts = append(opts, grpc.WithPerRPCCredentials(creds))
 	}
 	log.Infof("Dialing service %q on DUT %s@%s using credentials %+v", serviceName, d.Name(), addr, creds)
+	ctx, cancel := context.WithTimeout(ctx, grpcDialTimeout)
+	defer cancel()
 	conn, err := grpc.DialContext(ctx, addr, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("DialContext(ctx, %s, %v): %w", addr, opts, err)
@@ -368,6 +372,8 @@ func (a *kneATE) dialGRPC(ctx context.Context, serviceName string, opts ...grpc.
 	}
 	addr := serviceAddr(s)
 	log.Infof("Dialing service %q on ATE %s@%s", serviceName, a.Name(), addr)
+	ctx, cancel := context.WithTimeout(ctx, grpcDialTimeout)
+	defer cancel()
 	conn, err := grpc.DialContext(ctx, addr, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("DialContext(ctx, %s, %v): %w", addr, opts, err)
