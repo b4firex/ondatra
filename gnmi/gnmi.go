@@ -165,13 +165,10 @@ func isContextErr(err error) bool {
 		GRPCStatus() *status.Status
 	}
 	ok := errors.As(err, &st)
-	return ok && (st.GRPCStatus().Code() == codes.DeadlineExceeded || st.GRPCStatus().Code() == codes.Canceled)
-}
-
-// statusErr is an interface implemented by errors returned by gRPC.
-// https://pkg.go.dev/google.golang.org/grpc@v1.48.0/internal/status#Error
-type statusErr interface {
-	GRPCStatus() *status.Status
+	if !ok {
+		return errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled)
+	}
+	return st.GRPCStatus().Code() == codes.DeadlineExceeded || st.GRPCStatus().Code() == codes.Canceled
 }
 
 // Await waits for the watch to finish and returns the last received value
@@ -399,6 +396,25 @@ func BatchUpdate[T any](sb *SetBatch, q ygnmi.ConfigQuery[T], val T) {
 // BatchReplace stores an replace operation in the SetBatch.
 func BatchReplace[T any](sb *SetBatch, q ygnmi.ConfigQuery[T], val T) {
 	ygnmi.BatchReplace(&sb.sb, q, val)
+}
+
+// BatchUnionReplace stores a union_replace operation in the SetBatch.
+//
+// https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-union_replace.md
+func BatchUnionReplace[T any](sb *SetBatch, q ygnmi.ConfigQuery[T], val T) {
+	ygnmi.BatchUnionReplace(&sb.sb, q, val)
+}
+
+// BatchUnionReplaceCLI stores a CLI union_replace operation in the SetBatch.
+//
+//   - nos is the name of the Network operating system.
+//     "_cli" is appended to it to form the origin, see
+//     https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-union_replace.md#24-native-cli-configuration-cli
+//   - ascii is the full CLI text.
+//
+// https://github.com/openconfig/reference/blob/master/rpc/gnmi/gnmi-union_replace.md
+func BatchUnionReplaceCLI(sb *SetBatch, nos, ascii string) {
+	ygnmi.BatchUnionReplaceCLI(&sb.sb, nos, ascii)
 }
 
 // BatchDelete stores an delete operation in the SetBatch.

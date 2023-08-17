@@ -20,6 +20,8 @@ import (
 	"regexp"
 	"sort"
 
+	"golang.org/x/net/context"
+
 	log "github.com/golang/glog"
 	"github.com/openconfig/ondatra/internal/orderedmap"
 	"github.com/pkg/errors"
@@ -154,6 +156,18 @@ func (e *AbstractEdge) String() string {
 	return fmt.Sprintf("%q -> %q", e.Src.Desc, e.Dst.Desc)
 }
 
+// alphabeticallyFirstPort returns the port in the edge that comes first alphabetically.
+// This is for sorting purposes only.
+func (e *AbstractEdge) alphabeticallyFirstPort() *AbstractPort {
+	if e.Dst == nil {
+		return e.Src
+	}
+	if e.Src.Desc < e.Dst.Desc {
+		return e.Src
+	}
+	return e.Dst
+}
+
 // ConcreteEdge represents a link from an source ConcretePort to a destination ConcretePort.
 type ConcreteEdge struct {
 	Src, Dst *ConcretePort
@@ -205,7 +219,8 @@ type solver struct {
 }
 
 // Solve returns an assignment from superGraph that satisfies abstractGraph.
-func Solve(abstractGraph *AbstractGraph, superGraph *ConcreteGraph) (*Assignment, error) {
+// Solve accepts a context to handle termination if the solve takes too long.
+func Solve(ctx context.Context, abstractGraph *AbstractGraph, superGraph *ConcreteGraph) (*Assignment, error) {
 	solveErr := &SolveErr{absGraphDesc: abstractGraph.Desc, conGraphDesc: superGraph.Desc}
 	if len(abstractGraph.Nodes) > len(superGraph.Nodes) {
 		return nil, solveErr
@@ -285,7 +300,7 @@ func Solve(abstractGraph *AbstractGraph, superGraph *ConcreteGraph) (*Assignment
 		deferredPortConstraints: orderedmap.NewOrderedMap[*AbstractPort, []deferredPortConstraint](),
 	}
 
-	a, ok := s.solve()
+	a, ok := s.solve(ctx)
 	if !ok {
 		solveErr.maxAssign = s.maxAssign.assignment
 		return nil, solveErr
@@ -298,7 +313,7 @@ func Solve(abstractGraph *AbstractGraph, superGraph *ConcreteGraph) (*Assignment
 // 2. For each mapping, check the concrete nodes and satisfy the edges of the abstract graph.
 // 3. Assign concrete ports.
 // solve always returns the max assignment and true if the solve completed.
-func (s *solver) solve() (*Assignment, bool) {
+func (s *solver) solve(ctx context.Context) (*Assignment, bool) {
 	abs2ConNodes := make(map[*AbstractNode][]*ConcreteNode)
 	s.processConstraints()
 	for _, n := range s.abstractGraph.Nodes {
@@ -319,6 +334,11 @@ func (s *solver) solve() (*Assignment, bool) {
 	// Iterate through each mapping.
 	// For each mapping, evaluate deferred constraints and attempt to match edges and assign ports.
 	for abs2ConNode := range abs2ConNodeChan {
+		select {
+		case <-ctx.Done():
+			return nil, false
+		default:
+		}
 		if !s.matchDeferredNodes(abs2ConNode) {
 			continue
 		}
@@ -328,7 +348,7 @@ func (s *solver) solve() (*Assignment, bool) {
 		}
 
 		// Since the edges can be satisfied, try to assign matching ports.
-		abs2ConPort := s.assignEdges(abs2ConNode)
+		abs2ConPort := s.assignEdges(ctx, abs2ConNode)
 		if abs2ConPort == nil {
 			continue
 		}
@@ -397,7 +417,14 @@ func (pa *portAssigner) nextEdge() *AbstractEdge {
 	return nil
 }
 
-func (pa *portAssigner) assign() bool {
+func (pa *portAssigner) assign(ctx context.Context) bool {
+	select {
+	case <-ctx.Done():
+		// The context is done. Stop work.
+		log.Warningf("Timeout occurred before solve was finished, error: %v", ctx.Err())
+		return false
+	default:
+	}
 	var absEdge *AbstractEdge
 	// If there are enqueued edges, pop until we find one that hasn't been assigned.
 	for len(pa.assignQueue.queue) > 0 {
@@ -433,7 +460,7 @@ func (pa *portAssigner) assign() bool {
 		for p, i := range numEnqueuedPortConstraints {
 			pcs, ok := pa.deferredUntilPortConstraints.Get(p)
 			if !ok {
-				log.Fatalf("Impossible: cannot remove non-existant port constraints")
+				log.Fatalf("Impossible: cannot remove non-existent port constraints")
 			}
 			if len(pcs) <= i {
 				pa.deferredUntilPortConstraints.Delete(p)
@@ -520,7 +547,7 @@ func (pa *portAssigner) assign() bool {
 		}
 		// This edge assignment works; recurse for the next edge.
 		pa.assignQueue = queue
-		if pa.assign() {
+		if pa.assign(ctx) {
 			return true
 		}
 		pa.assignQueue = pa.assignQueue.prev
@@ -537,7 +564,7 @@ func (pa *portAssigner) assign() bool {
 	return false
 }
 
-func (s *solver) assignEdges(abs2ConNode map[*AbstractNode]*ConcreteNode) map[*AbstractPort]*ConcretePort {
+func (s *solver) assignEdges(ctx context.Context, abs2ConNode map[*AbstractNode]*ConcreteNode) map[*AbstractPort]*ConcretePort {
 	if len(s.absPort2Node) == 0 {
 		return map[*AbstractPort]*ConcretePort{}
 	}
@@ -607,6 +634,9 @@ func (s *solver) assignEdges(abs2ConNode map[*AbstractNode]*ConcreteNode) map[*A
 		if ej.Dst != nil {
 			ejWeight += len(ej.Dst.Constraints)
 		}
+		if eiWeight == ejWeight {
+			return ei.alphabeticallyFirstPort().Desc < ej.alphabeticallyFirstPort().Desc
+		}
 		return eiWeight > ejWeight
 	})
 
@@ -625,7 +655,7 @@ func (s *solver) assignEdges(abs2ConNode map[*AbstractNode]*ConcreteNode) map[*A
 		assignQueue:                  aq,
 		maxAbs2ConPorts:              make(map[*AbstractPort]*ConcretePort, len(s.absPort2Node)),
 	}
-	if ok := pa.assign(); !ok {
+	if ok := pa.assign(ctx); !ok {
 		if len(pa.maxAbs2ConPorts) > s.maxAssign.numPorts {
 			s.maxAssign.assignment.Node2Node = abs2ConNode
 			maxPorts := make(map[*AbstractPort]*ConcretePort, len(s.absPort2Node))
