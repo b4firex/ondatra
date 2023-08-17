@@ -21,7 +21,6 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/openconfig/ondatra/binding"
-	"github.com/openconfig/ondatra/binding/ixweb"
 	"github.com/openconfig/ondatra/internal/events"
 	"github.com/openconfig/ondatra/internal/rawapis"
 
@@ -122,6 +121,49 @@ func (g *GNOIAPI) Default(t testing.TB) GNOI {
 	return bgnoi
 }
 
+// GNSIAPI provides access to creating raw gNSI client for the DUT.
+type GNSIAPI struct {
+	dut binding.DUT
+}
+
+// GNSI stores APIs to GNSI services.
+type GNSI interface {
+	// Embed an unexported interface that wraps binding.GNSIClients,
+	// so as to not expose the binding.GNSIClients instance directly.
+	privateGNSI
+}
+
+type privateGNSI interface {
+	binding.GNSIClients
+}
+
+// GNSI provides access to creating raw gNSI clients for the dut.
+func (r *DUTAPIs) GNSI() *GNSIAPI {
+	return &GNSIAPI{r.dut}
+}
+
+// New returns a new gNSI client for the DUT.
+func (g *GNSIAPI) New(t testing.TB) GNSI {
+	t.Helper()
+	t = events.ActionStarted(t, "Creating gNSI  client for %s", g.dut)
+	bgnsi, err := rawapis.NewGNSI(context.Background(), g.dut)
+	if err != nil {
+		t.Fatalf("Failed to create gNSI client for %v: %v", g.dut, err)
+	}
+	return bgnsi
+}
+
+// Default returns the default gNSI client for the dut.
+func (g *GNSIAPI) Default(t testing.TB) GNSI {
+	t.Helper()
+	t = events.ActionStarted(t, "Fetching gNSI client for %s", g.dut)
+	bgnsi, err := rawapis.FetchGNSI(context.Background(), g.dut)
+	if err != nil {
+		t.Fatalf("Failed to fetch gNSI client for %v: %v", g.dut, err)
+	}
+	return bgnsi
+}
+
 // GRIBI provides access to createing raw gRIBI clients for the dut.
 func (r *DUTAPIs) GRIBI() *GRIBIAPI {
 	return &GRIBIAPI{r.dut}
@@ -217,32 +259,4 @@ func (r *DUTAPIs) Console(t testing.TB) StreamClient {
 		t.Fatalf("Failed to create console client for %v: %v", r.dut, err)
 	}
 	return c
-}
-
-// NewATEAPIs returns a new instance of raw ATE APIs.
-// Tests must not call this directly.
-func NewATEAPIs(ate binding.ATE) *ATEAPIs {
-	return &ATEAPIs{ate}
-}
-
-// ATEAPIs provides access to raw DUT protocol APIs.
-type ATEAPIs struct {
-	ate binding.ATE
-}
-
-// GNMI provides access to creating raw gNMI clients for the dut.
-func (r *ATEAPIs) GNMI() *GNMIAPI {
-	return &GNMIAPI{r.ate}
-}
-
-// IxNetwork returns the raw IxNetwork session for the ATE.
-// TODO(team): Add unit tests once raw APIs is factored out into its own package.
-func (r *ATEAPIs) IxNetwork(t testing.TB) *ixweb.Session {
-	t.Helper()
-	t = events.ActionStarted(t, "Fetching IxNetwork session for %s", r.ate)
-	ixnet, err := rawapis.FetchIxNetwork(context.Background(), r.ate)
-	if err != nil {
-		t.Fatalf("IxNetwork(t) on %v: %v", r.ate, err)
-	}
-	return ixnet.Session
 }

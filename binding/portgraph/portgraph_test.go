@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"regexp"
 	"testing"
+
+	"golang.org/x/net/context"
 )
 
 // Initialize ConcretePorts and ConcreteNodes for the super graph.
@@ -31,8 +33,11 @@ var (
 	node3port2   = &ConcretePort{Desc: "node3:port2"}
 	node4port1   = &ConcretePort{Desc: "node4:port1"}
 	node4port2   = &ConcretePort{Desc: "node4:port2"}
+	node5port1   = &ConcretePort{Desc: "node5:port1"}
+	node6port1   = &ConcretePort{Desc: "node6:port1"}
+	node7port1   = &ConcretePort{Desc: "node7:port1"}
 	node8port1   = &ConcretePort{Desc: "node8:port1"}
-	node9port1   = &ConcretePort{Desc: "node9:port1"}
+	node9port1   = &ConcretePort{Desc: "node9:port1", Attrs: map[string]string{"attr": "node9port1"}}
 	node10port1  = &ConcretePort{Desc: "node10:port1"}
 	node10port2  = &ConcretePort{Desc: "node10:port2"}
 	node11port1  = &ConcretePort{Desc: "node11:port1"}
@@ -145,9 +150,9 @@ var (
 	node2 = &ConcreteNode{Desc: "node2", Ports: []*ConcretePort{node2port1, node2port2}, Attrs: map[string]string{"vendor": "CISCO2"}}
 	node3 = &ConcreteNode{Desc: "node3", Ports: []*ConcretePort{node3port1, node3port2}, Attrs: map[string]string{"vendor": "CISCO3"}}
 	node4 = &ConcreteNode{Desc: "node4", Ports: []*ConcretePort{node4port1, node4port2}, Attrs: map[string]string{"vendor": "CISCO4"}}
-	node5 = &ConcreteNode{Desc: "node5", Attrs: map[string]string{"vendor": "CISCO1"}}
-	node6 = &ConcreteNode{Desc: "node6", Attrs: map[string]string{"vendor": "CISCO2"}}
-	node7 = &ConcreteNode{Desc: "node7", Attrs: map[string]string{"vendor": "CISCO3"}}
+	node5 = &ConcreteNode{Desc: "node5", Ports: []*ConcretePort{node5port1}, Attrs: map[string]string{"vendor": "CISCO1"}}
+	node6 = &ConcreteNode{Desc: "node6", Ports: []*ConcretePort{node6port1}, Attrs: map[string]string{"vendor": "CISCO2"}}
+	node7 = &ConcreteNode{Desc: "node7", Ports: []*ConcretePort{node7port1}, Attrs: map[string]string{"vendor": "CISCO3"}}
 	node8 = &ConcreteNode{Desc: "node8", Ports: []*ConcretePort{node8port1}, Attrs: map[string]string{"attr": ""}}
 	node9 = &ConcreteNode{Desc: "node9", Ports: []*ConcretePort{node9port1}, Attrs: map[string]string{"vendor": "UNIQUE9"}}
 	// Four Nodes, interconnected; include additional Nodes with enough ports but not enough edges.
@@ -221,6 +226,9 @@ var superGraph = &ConcreteGraph{
 		{Src: node1port2, Dst: node4port1},
 		{Src: node2port2, Dst: node3port1},
 		{Src: node3port2, Dst: node4port2},
+		{Src: node5port1, Dst: node8port1},
+		{Src: node6port1, Dst: node8port1},
+		{Src: node7port1, Dst: node8port1},
 		{Src: node8port1, Dst: node9port1},
 		// 4 interconnected nodes
 		{Src: node10port1, Dst: node14port1},
@@ -414,6 +422,12 @@ var (
 	abs22port3 = &AbstractPort{Desc: "abs22:port3"}
 	abs22port4 = &AbstractPort{Desc: "abs22:port4", Constraints: map[string]PortConstraint{"attr3": SameAsPort(abs21port1)}}
 	abs22port5 = &AbstractPort{Desc: "abs22:port5", Constraints: map[string]PortConstraint{"attr4": SameAsPort(abs21port1)}}
+
+	// 2 nodes, one link. Checking that many working nodes doesn't cause match issues.
+	abs23      = &AbstractNode{Desc: "abs23", Ports: []*AbstractPort{abs23port1}, Constraints: map[string]NodeConstraint{"attr": Equal("")}}
+	abs24      = &AbstractNode{Desc: "abs24", Ports: []*AbstractPort{abs24port1}}
+	abs23port1 = &AbstractPort{Desc: "abs23:port1"}
+	abs24port1 = &AbstractPort{Desc: "abs24:port1", Constraints: map[string]PortConstraint{"attr": Equal("node9port1")}}
 )
 
 func TestSolve(t *testing.T) {
@@ -608,10 +622,19 @@ func TestSolve(t *testing.T) {
 			abs22port4: node81port4,
 			abs22port5: node81port5,
 		},
+	}, {
+		desc: "2 nodes, 1 link; multiple possible nodes for second node",
+		graph: &AbstractGraph{
+			Desc:  "2 nodes, 1 link; multiple possible nodes for second node",
+			Nodes: []*AbstractNode{abs23, abs24},
+			Edges: []*AbstractEdge{{abs23port1, abs24port1}},
+		},
+		wantNodes: map[*AbstractNode]*ConcreteNode{abs23: node8, abs24: node9},
+		wantPorts: map[*AbstractPort]*ConcretePort{abs23port1: node8port1, abs24port1: node9port1},
 	}}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			a, err := Solve(tc.graph, superGraph)
+			a, err := Solve(context.Background(), tc.graph, superGraph)
 			if err != nil {
 				t.Fatalf("Solve got error %v, want nil", err)
 			}
@@ -731,7 +754,7 @@ func TestSolveNotSolvable(t *testing.T) {
 	}}
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
-			a, err := Solve(tc.graph, superGraph)
+			a, err := Solve(context.Background(), tc.graph, superGraph)
 			if a != nil {
 				t.Errorf("Solve got assignment %v, want nil", a)
 			}
@@ -759,6 +782,20 @@ func TestSolveNotSolvable(t *testing.T) {
 	}
 }
 
+func TestSolveCancelled(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	requestGraph := &AbstractGraph{
+		Desc:  "four nodes, interconnected",
+		Nodes: []*AbstractNode{abs3, abs4, abs5, abs6},
+		Edges: []*AbstractEdge{{abs3port1, abs4port1}, {abs3port2, abs6port1}, {abs4port2, abs5port1}, {abs5port2, abs6port2}},
+	}
+	_, err := Solve(ctx, requestGraph, superGraph)
+	if err == nil {
+		t.Error("Solve got nil error, want error due to cancel")
+	}
+}
+
 // Benchmark solve for 4 DUT
 // Run via blaze test with --test_arg=--test.bench=. --nocache_test_results
 func Benchmark4DutSolve(b *testing.B) {
@@ -769,6 +806,6 @@ func Benchmark4DutSolve(b *testing.B) {
 		Edges: []*AbstractEdge{{abs3port1, abs4port1}, {abs3port2, abs6port1}, {abs4port2, abs5port1}, {abs5port2, abs6port2}},
 	}
 	for i := 0; i < b.N; i++ {
-		Solve(requestGraph, superGraph)
+		Solve(context.Background(), requestGraph, superGraph)
 	}
 }

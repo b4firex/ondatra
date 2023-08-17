@@ -62,6 +62,7 @@ YANG_FILES=(
   public/release/models/optical-transport/openconfig-terminal-device.yang
   public/release/models/optical-transport/openconfig-transport-types.yang
   public/release/models/ospf/openconfig-ospfv2.yang
+  public/release/models/ospf/openconfig-ospf-policy.yang
   public/release/models/p4rt/openconfig-p4rt.yang
   public/release/models/platform/openconfig-platform-controller-card.yang
   public/release/models/platform/openconfig-platform-cpu.yang
@@ -113,6 +114,7 @@ go run github.com/openconfig/ygnmi/app/ygnmi generator \
   --base_package_path=github.com/openconfig/ondatra/gnmi/oc \
   --output_dir=gnmi/oc \
   --paths=public/release/models/...,public/third_party/ietf/... \
+  --split_package_paths="/network-instances/network-instance/protocols/protocol/isis=netinstisis,/network-instances/network-instance/protocols/protocol/bgp=netinstbgp" \
   --ignore_deviate_notsupported \
   "${YANG_FILES[@]}"
 
@@ -121,6 +123,7 @@ go run github.com/openconfig/ygnmi/app/ygnmi generator \
   --base_package_path=github.com/openconfig/ondatra/gnmi/otg \
   --output_dir=gnmi/otg \
   --paths=models-yang/models/... \
+  --generate_atomic_lists=false \
   "${OTG_YANG_FILES[@]}"
 
 find gnmi -name "*.go" -exec goimports -w {} +
