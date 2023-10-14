@@ -12,7 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package otg provides an API to Open Traffic Generator.
+// Package otg provides an API to generate traffic using Open Traffic Generator.
+//
+// The functions below are thin wrappers around the [Gosnappi library] provided
+// by the Open Traffic Generator project. See the godoc [Example] for a
+// demonstration of how to use the API.
+//
+// [Gosnappi library]: https://pkg.go.dev/github.com/open-traffic-generator/snappi/gosnappi
+// [Example]: https://pkg.go.dev/github.com/openconfig/ondatra/otg#example_
 package otg
 
 import (
@@ -47,26 +54,6 @@ type OTG struct {
 
 func (o *OTG) String() string {
 	return fmt.Sprintf("{ate: %s}", o.ate)
-}
-
-// NewConfig creates a new OTG config.
-// Deprecated: Use gosnappi.NewConfig directly.
-func (o *OTG) NewConfig(t testing.TB) gosnappi.Config {
-	t.Helper()
-	t = events.ActionStarted(t, "Creating new config for %s", o.ate)
-	cfg, err := newConfig(context.Background(), o.ate)
-	if err != nil {
-		t.Fatalf("NewConfig(t) on %s: %v", o.ate, err)
-	}
-	return cfg
-}
-
-func newConfig(ctx context.Context, ate binding.ATE) (gosnappi.Config, error) {
-	api, err := rawapis.FetchOTG(ctx, ate)
-	if err != nil {
-		return nil, err
-	}
-	return api.NewConfig(), nil
 }
 
 // PushConfig pushes config to the ATE.
