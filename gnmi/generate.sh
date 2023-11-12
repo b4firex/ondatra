@@ -43,6 +43,7 @@ YANG_FILES=(
   public/release/models/bfd/openconfig-bfd.yang
   public/release/models/bgp/openconfig-bgp-policy.yang
   public/release/models/bgp/openconfig-bgp-types.yang
+  public/release/models/extensions/openconfig-metadata.yang
   public/release/models/interfaces/openconfig-if-aggregate.yang
   public/release/models/interfaces/openconfig-if-ethernet.yang
   public/release/models/interfaces/openconfig-if-ethernet-ext.yang
@@ -111,6 +112,7 @@ OTG_YANG_FILES=(
 
 go run github.com/openconfig/ygnmi/app/ygnmi generator \
   --trim_module_prefix=openconfig \
+  --typedef_enum_with_defmod=false \
   --exclude_modules="${EXCLUDE_MODULES}" \
   --base_package_path=github.com/openconfig/ondatra/gnmi/oc \
   --output_dir=gnmi/oc \
