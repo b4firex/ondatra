@@ -27,19 +27,6 @@ import (
 	"google.golang.org/grpc"
 
 	gpb "github.com/openconfig/gnmi/proto/gnmi"
-	bpb "github.com/openconfig/gnoi/bgp"
-	cpb "github.com/openconfig/gnoi/cert"
-	dpb "github.com/openconfig/gnoi/diag"
-	frpb "github.com/openconfig/gnoi/factory_reset"
-	fpb "github.com/openconfig/gnoi/file"
-	hpb "github.com/openconfig/gnoi/healthz"
-	lpb "github.com/openconfig/gnoi/layer2"
-	mpb "github.com/openconfig/gnoi/mpls"
-	ospb "github.com/openconfig/gnoi/os"
-	otpb "github.com/openconfig/gnoi/otdr"
-	plqpb "github.com/openconfig/gnoi/packet_link_qualification"
-	spb "github.com/openconfig/gnoi/system"
-	wpb "github.com/openconfig/gnoi/wavelength_router"
 	acctzpb "github.com/openconfig/gnsi/acctz"
 	authzpb "github.com/openconfig/gnsi/authz"
 	certzpb "github.com/openconfig/gnsi/certz"
@@ -184,89 +171,6 @@ func (*AbstractATE) DialOTG(context.Context, ...grpc.DialOption) (gosnappi.Gosna
 
 func (*AbstractATE) mustEmbedAbstractATE() {}
 
-var _ gnoigo.Clients = &AbstractGNOIClients{}
-
-// AbstractGNOIClients is implementation support for the GNOIClients interface.
-type AbstractGNOIClients struct{}
-
-// BGP logs a fatal unimplemented error.
-func (*AbstractGNOIClients) BGP() bpb.BGPClient {
-	log.Fatal("BGP unimplemented")
-	return nil
-}
-
-// CertificateManagement logs a fatal unimplemented error.
-func (*AbstractGNOIClients) CertificateManagement() cpb.CertificateManagementClient {
-	log.Fatal("CertificateManagement unimplemented")
-	return nil
-}
-
-// Diag logs a fatal unimplemented error.
-func (*AbstractGNOIClients) Diag() dpb.DiagClient {
-	log.Fatal("Diag unimplemented")
-	return nil
-}
-
-// FactoryReset logs a fatal unimplemented error.
-func (*AbstractGNOIClients) FactoryReset() frpb.FactoryResetClient {
-	log.Fatal("FactoryReset unimplemented")
-	return nil
-}
-
-// File logs a fatal unimplemented error.
-func (*AbstractGNOIClients) File() fpb.FileClient {
-	log.Fatal("File unimplemented")
-	return nil
-}
-
-// Healthz logs a fatal unimplemented error.
-func (*AbstractGNOIClients) Healthz() hpb.HealthzClient {
-	log.Fatal("Healthz unimplemented")
-	return nil
-}
-
-// Layer2 logs a fatal unimplemented error.
-func (*AbstractGNOIClients) Layer2() lpb.Layer2Client {
-	log.Fatal("Layer2 unimplemented")
-	return nil
-}
-
-// LinkQualification logs a fatal unimplemented error.
-func (*AbstractGNOIClients) LinkQualification() plqpb.LinkQualificationClient {
-	log.Fatal("LinkQualification unimplemented")
-	return nil
-}
-
-// MPLS logs a fatal unimplemented error.
-func (*AbstractGNOIClients) MPLS() mpb.MPLSClient {
-	log.Fatal("MPLS unimplemented")
-	return nil
-}
-
-// OS logs a fatal unimplemented error.
-func (*AbstractGNOIClients) OS() ospb.OSClient {
-	log.Fatal("OS unimplemented")
-	return nil
-}
-
-// OTDR logs a fatal unimplemented error.
-func (*AbstractGNOIClients) OTDR() otpb.OTDRClient {
-	log.Fatal("OTDR unimplemented")
-	return nil
-}
-
-// System logs a fatal unimplemented error.
-func (*AbstractGNOIClients) System() spb.SystemClient {
-	log.Fatal("System unimplemented")
-	return nil
-}
-
-// WavelengthRouter logs a fatal unimplemented error.
-func (*AbstractGNOIClients) WavelengthRouter() wpb.WavelengthRouterClient {
-	log.Fatal("WavelengthRouter unimplemented")
-	return nil
-}
-
 var _ GNSIClients = &AbstractGNSIClients{}
 
 // AbstractGNSIClients is implementation support for the GNSIClients interface.
@@ -310,11 +214,49 @@ var _ CLIClient = &AbstractCLIClient{}
 type AbstractCLIClient struct{}
 
 // SendCommand returns an unimplemented error.
+// Deprecated: Use RunCommand() instead.
+// TODO(team): Remove when all clients using RunCommand.
 func (*AbstractCLIClient) SendCommand(ctx context.Context, cmd string) (string, error) {
 	return "", errors.New("SendCommand unimplemented")
 }
 
+// SendCommandUsingRun implements SendCommand using the client's RunCommand.
+func SendCommandUsingRun(ctx context.Context, cmd string, c CLIClient) (string, error) {
+	res, err := c.RunCommand(ctx, cmd)
+	if err != nil {
+		return "", err
+	}
+	if res.Error() != "" {
+		return "", errors.New(res.Error())
+	}
+	return res.Output(), nil
+}
+
+// RunCommand returns an unimplemented error.
+func (*AbstractCLIClient) RunCommand(ctx context.Context, cmd string) (CommandResult, error) {
+	return nil, errors.New("RunCommand unimplemented")
+}
+
 func (*AbstractCLIClient) mustEmbedAbstractCLIClient() {}
+
+var _ CommandResult = &AbstractCommandResult{}
+
+// AbstractCommandResult is implementation support for the CommandResult interface.
+type AbstractCommandResult struct{}
+
+// Output logs a fatal unimplemented error.
+func (*AbstractCommandResult) Output() string {
+	log.Fatal("Output unimplemented")
+	return ""
+}
+
+// Error logs a fatal unimplemented error.
+func (*AbstractCommandResult) Error() string {
+	log.Fatal("Error unimplemented")
+	return ""
+}
+
+func (*AbstractCommandResult) mustEmbedAbstractCommandResult() {}
 
 var _ ConsoleClient = &AbstractConsoleClient{}
 
