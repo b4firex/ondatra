@@ -14,6 +14,7 @@ using the following YANG input files:
   - public/release/models/acl/openconfig-packet-match.yang
   - public/release/models/aft/openconfig-aft.yang
   - public/release/models/aft/openconfig-aft-network-instance.yang
+  - public/release/models/aft/openconfig-aft-summary.yang
   - public/release/models/ate/openconfig-ate-flow.yang
   - public/release/models/ate/openconfig-ate-intf.yang
   - public/release/models/bfd/openconfig-bfd.yang
@@ -53,6 +54,7 @@ using the following YANG input files:
   - public/release/models/platform/openconfig-platform-software.yang
   - public/release/models/platform/openconfig-platform-transceiver.yang
   - public/release/models/platform/openconfig-platform.yang
+  - public/release/models/platform/openconfig-platform-common.yang
   - public/release/models/policy-forwarding/openconfig-policy-forwarding.yang
   - public/release/models/policy/openconfig-policy-types.yang
   - public/release/models/qos/openconfig-qos-elements.yang
@@ -63,6 +65,9 @@ using the following YANG input files:
   - public/release/models/sampling/openconfig-sampling-sflow.yang
   - public/release/models/segment-routing/openconfig-segment-routing-types.yang
   - public/release/models/system/openconfig-system.yang
+  - public/release/models/system/openconfig-system-bootz.yang
+  - public/release/models/system/openconfig-system-controlplane.yang
+  - public/release/models/system/openconfig-system-utilization.yang
   - public/release/models/types/openconfig-inet-types.yang
   - public/release/models/types/openconfig-types.yang
   - public/release/models/types/openconfig-yang-types.yang
@@ -1474,9 +1479,7 @@ func (n *Lacp_InterfacePathAny) LacpMode() *Lacp_Interface_LacpModePathAny {
 }
 
 // MemberAny (list): List of member interfaces and their associated status for
-// a LACP-controlled aggregate interface.  Member list is not
-// configurable here -- each interface indicates items
-// its participation in the LAG.
+// a LACP-controlled aggregate interface
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
@@ -1494,9 +1497,7 @@ func (n *Lacp_InterfacePath) MemberAny() *Lacp_Interface_MemberPathAny {
 }
 
 // MemberAny (list): List of member interfaces and their associated status for
-// a LACP-controlled aggregate interface.  Member list is not
-// configurable here -- each interface indicates items
-// its participation in the LAG.
+// a LACP-controlled aggregate interface
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
@@ -1514,9 +1515,7 @@ func (n *Lacp_InterfacePathAny) MemberAny() *Lacp_Interface_MemberPathAny {
 }
 
 // Member (list): List of member interfaces and their associated status for
-// a LACP-controlled aggregate interface.  Member list is not
-// configurable here -- each interface indicates items
-// its participation in the LAG.
+// a LACP-controlled aggregate interface
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
@@ -1536,9 +1535,7 @@ func (n *Lacp_InterfacePath) Member(Interface string) *Lacp_Interface_MemberPath
 }
 
 // Member (list): List of member interfaces and their associated status for
-// a LACP-controlled aggregate interface.  Member list is not
-// configurable here -- each interface indicates items
-// its participation in the LAG.
+// a LACP-controlled aggregate interface
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
@@ -1558,9 +1555,7 @@ func (n *Lacp_InterfacePathAny) Member(Interface string) *Lacp_Interface_MemberP
 }
 
 // MemberMap (list): List of member interfaces and their associated status for
-// a LACP-controlled aggregate interface.  Member list is not
-// configurable here -- each interface indicates items
-// its participation in the LAG.
+// a LACP-controlled aggregate interface
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
@@ -1578,9 +1573,7 @@ func (n *Lacp_InterfacePath) MemberMap() *Lacp_Interface_MemberPathMap {
 }
 
 // MemberMap (list): List of member interfaces and their associated status for
-// a LACP-controlled aggregate interface.  Member list is not
-// configurable here -- each interface indicates items
-// its participation in the LAG.
+// a LACP-controlled aggregate interface
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
@@ -2407,8 +2400,8 @@ func (n *Lacp_Interface_Member_InterfacePathAny) State() ygnmi.WildcardQuery[str
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
-//	Path from parent:     "interface"
-//	Path from root:       ""
+//	Path from parent:     "config/interface"
+//	Path from root:       "/lacp/interfaces/interface/members/member/config/interface"
 func (n *Lacp_Interface_Member_InterfacePath) Config() ygnmi.ConfigQuery[string] {
 	return ygnmi.NewConfigQuery[string](
 		"Lacp_Interface_Member",
@@ -2419,7 +2412,7 @@ func (n *Lacp_Interface_Member_InterfacePath) Config() ygnmi.ConfigQuery[string]
 		true,
 		false,
 		ygnmi.NewNodePath(
-			[]string{"interface"},
+			[]string{"config", "interface"},
 			nil,
 			n.parent,
 		),
@@ -2448,8 +2441,8 @@ func (n *Lacp_Interface_Member_InterfacePath) Config() ygnmi.ConfigQuery[string]
 //
 //	Defining module:      "openconfig-lacp"
 //	Instantiating module: "openconfig-lacp"
-//	Path from parent:     "interface"
-//	Path from root:       ""
+//	Path from parent:     "config/interface"
+//	Path from root:       "/lacp/interfaces/interface/members/member/config/interface"
 func (n *Lacp_Interface_Member_InterfacePathAny) Config() ygnmi.WildcardQuery[string] {
 	return ygnmi.NewWildcardQuery[string](
 		"Lacp_Interface_Member",
@@ -2460,7 +2453,7 @@ func (n *Lacp_Interface_Member_InterfacePathAny) Config() ygnmi.WildcardQuery[st
 		true,
 		false,
 		ygnmi.NewNodePath(
-			[]string{"interface"},
+			[]string{"config", "interface"},
 			nil,
 			n.parent,
 		),
@@ -2955,6 +2948,100 @@ func (n *Lacp_Interface_Member_PartnerPortNumPathAny) State() ygnmi.WildcardQuer
 	)
 }
 
+// Lacp_Interface_Member_PartnerPortPriorityPath represents the /openconfig-lacp/lacp/interfaces/interface/members/member/state/partner-port-priority YANG schema element.
+type Lacp_Interface_Member_PartnerPortPriorityPath struct {
+	*ygnmi.NodePath
+	parent ygnmi.PathStruct
+}
+
+// Lacp_Interface_Member_PartnerPortPriorityPathAny represents the wildcard version of the /openconfig-lacp/lacp/interfaces/interface/members/member/state/partner-port-priority YANG schema element.
+type Lacp_Interface_Member_PartnerPortPriorityPathAny struct {
+	*ygnmi.NodePath
+	parent ygnmi.PathStruct
+}
+
+// State returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "state/partner-port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/state/partner-port-priority"
+func (n *Lacp_Interface_Member_PartnerPortPriorityPath) State() ygnmi.SingletonQuery[uint16] {
+	return ygnmi.NewSingletonQuery[uint16](
+		"Lacp_Interface_Member",
+		true,
+		false,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"state", "partner-port-priority"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (uint16, bool) {
+			ret := gs.(*oc.Lacp_Interface_Member).PartnerPortPriority
+			if ret == nil {
+				var zero uint16
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface_Member) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// State returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "state/partner-port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/state/partner-port-priority"
+func (n *Lacp_Interface_Member_PartnerPortPriorityPathAny) State() ygnmi.WildcardQuery[uint16] {
+	return ygnmi.NewWildcardQuery[uint16](
+		"Lacp_Interface_Member",
+		true,
+		false,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"state", "partner-port-priority"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (uint16, bool) {
+			ret := gs.(*oc.Lacp_Interface_Member).PartnerPortPriority
+			if ret == nil {
+				var zero uint16
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface_Member) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
 // Lacp_Interface_Member_PortNumPath represents the /openconfig-lacp/lacp/interfaces/interface/members/member/state/port-num YANG schema element.
 type Lacp_Interface_Member_PortNumPath struct {
 	*ygnmi.NodePath
@@ -3030,6 +3117,182 @@ func (n *Lacp_Interface_Member_PortNumPathAny) State() ygnmi.WildcardQuery[uint1
 		),
 		func(gs ygot.ValidatedGoStruct) (uint16, bool) {
 			ret := gs.(*oc.Lacp_Interface_Member).PortNum
+			if ret == nil {
+				var zero uint16
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface_Member) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// Lacp_Interface_Member_PortPriorityPath represents the /openconfig-lacp/lacp/interfaces/interface/members/member/state/port-priority YANG schema element.
+type Lacp_Interface_Member_PortPriorityPath struct {
+	*ygnmi.NodePath
+	parent ygnmi.PathStruct
+}
+
+// Lacp_Interface_Member_PortPriorityPathAny represents the wildcard version of the /openconfig-lacp/lacp/interfaces/interface/members/member/state/port-priority YANG schema element.
+type Lacp_Interface_Member_PortPriorityPathAny struct {
+	*ygnmi.NodePath
+	parent ygnmi.PathStruct
+}
+
+// State returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "state/port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/state/port-priority"
+func (n *Lacp_Interface_Member_PortPriorityPath) State() ygnmi.SingletonQuery[uint16] {
+	return ygnmi.NewSingletonQuery[uint16](
+		"Lacp_Interface_Member",
+		true,
+		false,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"state", "port-priority"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (uint16, bool) {
+			ret := gs.(*oc.Lacp_Interface_Member).PortPriority
+			if ret == nil {
+				var zero uint16
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface_Member) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// State returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "state/port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/state/port-priority"
+func (n *Lacp_Interface_Member_PortPriorityPathAny) State() ygnmi.WildcardQuery[uint16] {
+	return ygnmi.NewWildcardQuery[uint16](
+		"Lacp_Interface_Member",
+		true,
+		false,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"state", "port-priority"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (uint16, bool) {
+			ret := gs.(*oc.Lacp_Interface_Member).PortPriority
+			if ret == nil {
+				var zero uint16
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface_Member) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// Config returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "config/port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/config/port-priority"
+func (n *Lacp_Interface_Member_PortPriorityPath) Config() ygnmi.ConfigQuery[uint16] {
+	return ygnmi.NewConfigQuery[uint16](
+		"Lacp_Interface_Member",
+		false,
+		true,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"config", "port-priority"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (uint16, bool) {
+			ret := gs.(*oc.Lacp_Interface_Member).PortPriority
+			if ret == nil {
+				var zero uint16
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface_Member) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// Config returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "config/port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/config/port-priority"
+func (n *Lacp_Interface_Member_PortPriorityPathAny) Config() ygnmi.WildcardQuery[uint16] {
+	return ygnmi.NewWildcardQuery[uint16](
+		"Lacp_Interface_Member",
+		false,
+		true,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"config", "port-priority"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (uint16, bool) {
+			ret := gs.(*oc.Lacp_Interface_Member).PortPriority
 			if ret == nil {
 				var zero uint16
 				return zero, false
@@ -3757,6 +4020,42 @@ func (n *Lacp_Interface_MemberPathAny) PartnerPortNum() *Lacp_Interface_Member_P
 	return ps
 }
 
+// PartnerPortPriority (leaf): Member interface partner's priority in its aggregate interface.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "state/partner-port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/state/partner-port-priority"
+func (n *Lacp_Interface_MemberPath) PartnerPortPriority() *Lacp_Interface_Member_PartnerPortPriorityPath {
+	ps := &Lacp_Interface_Member_PartnerPortPriorityPath{
+		NodePath: ygnmi.NewNodePath(
+			[]string{"state", "partner-port-priority"},
+			map[string]interface{}{},
+			n,
+		),
+		parent: n,
+	}
+	return ps
+}
+
+// PartnerPortPriority (leaf): Member interface partner's priority in its aggregate interface.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "state/partner-port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/state/partner-port-priority"
+func (n *Lacp_Interface_MemberPathAny) PartnerPortPriority() *Lacp_Interface_Member_PartnerPortPriorityPathAny {
+	ps := &Lacp_Interface_Member_PartnerPortPriorityPathAny{
+		NodePath: ygnmi.NewNodePath(
+			[]string{"state", "partner-port-priority"},
+			map[string]interface{}{},
+			n,
+		),
+		parent: n,
+	}
+	return ps
+}
+
 // PortNum (leaf): Port number of the local (actor) aggregation member
 //
 //	Defining module:      "openconfig-lacp"
@@ -3785,6 +4084,42 @@ func (n *Lacp_Interface_MemberPathAny) PortNum() *Lacp_Interface_Member_PortNumP
 	ps := &Lacp_Interface_Member_PortNumPathAny{
 		NodePath: ygnmi.NewNodePath(
 			[]string{"state", "port-num"},
+			map[string]interface{}{},
+			n,
+		),
+		parent: n,
+	}
+	return ps
+}
+
+// PortPriority (leaf): Member interface's priority in its aggregate interface.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "*/port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/*/port-priority"
+func (n *Lacp_Interface_MemberPath) PortPriority() *Lacp_Interface_Member_PortPriorityPath {
+	ps := &Lacp_Interface_Member_PortPriorityPath{
+		NodePath: ygnmi.NewNodePath(
+			[]string{"*", "port-priority"},
+			map[string]interface{}{},
+			n,
+		),
+		parent: n,
+	}
+	return ps
+}
+
+// PortPriority (leaf): Member interface's priority in its aggregate interface.
+//
+//	Defining module:      "openconfig-lacp"
+//	Instantiating module: "openconfig-lacp"
+//	Path from parent:     "*/port-priority"
+//	Path from root:       "/lacp/interfaces/interface/members/member/*/port-priority"
+func (n *Lacp_Interface_MemberPathAny) PortPriority() *Lacp_Interface_Member_PortPriorityPathAny {
+	ps := &Lacp_Interface_Member_PortPriorityPathAny{
+		NodePath: ygnmi.NewNodePath(
+			[]string{"*", "port-priority"},
 			map[string]interface{}{},
 			n,
 		),
@@ -3957,6 +4292,56 @@ func (n *Lacp_Interface_MemberPathAny) State() ygnmi.WildcardQuery[*oc.Lacp_Inte
 	)
 }
 
+// Config returns a Query that can be used in gNMI operations.
+func (n *Lacp_Interface_MemberPath) Config() ygnmi.ConfigQuery[*oc.Lacp_Interface_Member] {
+	return ygnmi.NewConfigQuery[*oc.Lacp_Interface_Member](
+		"Lacp_Interface_Member",
+		false,
+		true,
+		false,
+		false,
+		true,
+		false,
+		n,
+		nil,
+		nil,
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// Config returns a Query that can be used in gNMI operations.
+func (n *Lacp_Interface_MemberPathAny) Config() ygnmi.WildcardQuery[*oc.Lacp_Interface_Member] {
+	return ygnmi.NewWildcardQuery[*oc.Lacp_Interface_Member](
+		"Lacp_Interface_Member",
+		false,
+		true,
+		false,
+		false,
+		true,
+		false,
+		n,
+		nil,
+		nil,
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
 // State returns a Query that can be used in gNMI operations.
 func (n *Lacp_Interface_MemberPathMap) State() ygnmi.SingletonQuery[map[string]*oc.Lacp_Interface_Member] {
 	return ygnmi.NewSingletonQuery[map[string]*oc.Lacp_Interface_Member](
@@ -3994,6 +4379,68 @@ func (n *Lacp_Interface_MemberPathMapAny) State() ygnmi.WildcardQuery[map[string
 		"Lacp_Interface",
 		true,
 		false,
+		false,
+		false,
+		true,
+		true,
+		n,
+		func(gs ygot.ValidatedGoStruct) (map[string]*oc.Lacp_Interface_Member, bool) {
+			ret := gs.(*oc.Lacp_Interface).Member
+			return ret, ret != nil
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		&ygnmi.CompressionInfo{
+			PreRelPath:  []string{"openconfig-lacp:members"},
+			PostRelPath: []string{"openconfig-lacp:member"},
+		},
+	)
+}
+
+// Config returns a Query that can be used in gNMI operations.
+func (n *Lacp_Interface_MemberPathMap) Config() ygnmi.ConfigQuery[map[string]*oc.Lacp_Interface_Member] {
+	return ygnmi.NewConfigQuery[map[string]*oc.Lacp_Interface_Member](
+		"Lacp_Interface",
+		false,
+		true,
+		false,
+		false,
+		true,
+		true,
+		n,
+		func(gs ygot.ValidatedGoStruct) (map[string]*oc.Lacp_Interface_Member, bool) {
+			ret := gs.(*oc.Lacp_Interface).Member
+			return ret, ret != nil
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Lacp_Interface) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		&ygnmi.CompressionInfo{
+			PreRelPath:  []string{"openconfig-lacp:members"},
+			PostRelPath: []string{"openconfig-lacp:member"},
+		},
+	)
+}
+
+// Config returns a Query that can be used in gNMI operations.
+func (n *Lacp_Interface_MemberPathMapAny) Config() ygnmi.WildcardQuery[map[string]*oc.Lacp_Interface_Member] {
+	return ygnmi.NewWildcardQuery[map[string]*oc.Lacp_Interface_Member](
+		"Lacp_Interface",
+		false,
+		true,
 		false,
 		false,
 		true,
