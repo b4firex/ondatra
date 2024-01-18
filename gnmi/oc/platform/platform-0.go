@@ -14,6 +14,7 @@ using the following YANG input files:
   - public/release/models/acl/openconfig-packet-match.yang
   - public/release/models/aft/openconfig-aft.yang
   - public/release/models/aft/openconfig-aft-network-instance.yang
+  - public/release/models/aft/openconfig-aft-summary.yang
   - public/release/models/ate/openconfig-ate-flow.yang
   - public/release/models/ate/openconfig-ate-intf.yang
   - public/release/models/bfd/openconfig-bfd.yang
@@ -53,6 +54,7 @@ using the following YANG input files:
   - public/release/models/platform/openconfig-platform-software.yang
   - public/release/models/platform/openconfig-platform-transceiver.yang
   - public/release/models/platform/openconfig-platform.yang
+  - public/release/models/platform/openconfig-platform-common.yang
   - public/release/models/policy-forwarding/openconfig-policy-forwarding.yang
   - public/release/models/policy/openconfig-policy-types.yang
   - public/release/models/qos/openconfig-qos-elements.yang
@@ -63,6 +65,9 @@ using the following YANG input files:
   - public/release/models/sampling/openconfig-sampling-sflow.yang
   - public/release/models/segment-routing/openconfig-segment-routing-types.yang
   - public/release/models/system/openconfig-system.yang
+  - public/release/models/system/openconfig-system-bootz.yang
+  - public/release/models/system/openconfig-system-controlplane.yang
+  - public/release/models/system/openconfig-system-utilization.yang
   - public/release/models/types/openconfig-inet-types.yang
   - public/release/models/types/openconfig-types.yang
   - public/release/models/types/openconfig-yang-types.yang
@@ -1658,6 +1663,100 @@ func (n *Component_MfgNamePathAny) State() ygnmi.WildcardQuery[string] {
 		),
 		func(gs ygot.ValidatedGoStruct) (string, bool) {
 			ret := gs.(*oc.Component).MfgName
+			if ret == nil {
+				var zero string
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Component) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// Component_ModelNamePath represents the /openconfig-platform/components/component/state/model-name YANG schema element.
+type Component_ModelNamePath struct {
+	*ygnmi.NodePath
+	parent ygnmi.PathStruct
+}
+
+// Component_ModelNamePathAny represents the wildcard version of the /openconfig-platform/components/component/state/model-name YANG schema element.
+type Component_ModelNamePathAny struct {
+	*ygnmi.NodePath
+	parent ygnmi.PathStruct
+}
+
+// State returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-platform"
+//	Instantiating module: "openconfig-platform"
+//	Path from parent:     "state/model-name"
+//	Path from root:       "/components/component/state/model-name"
+func (n *Component_ModelNamePath) State() ygnmi.SingletonQuery[string] {
+	return ygnmi.NewSingletonQuery[string](
+		"Component",
+		true,
+		false,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"state", "model-name"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (string, bool) {
+			ret := gs.(*oc.Component).ModelName
+			if ret == nil {
+				var zero string
+				return zero, false
+			}
+			return *ret, true
+		},
+		func() ygot.ValidatedGoStruct { return new(oc.Component) },
+		func() *ytypes.Schema {
+			return &ytypes.Schema{
+				Root:       &oc.Root{},
+				SchemaTree: oc.SchemaTree,
+				Unmarshal:  oc.Unmarshal,
+			}
+		},
+		nil,
+		nil,
+	)
+}
+
+// State returns a Query that can be used in gNMI operations.
+//
+//	Defining module:      "openconfig-platform"
+//	Instantiating module: "openconfig-platform"
+//	Path from parent:     "state/model-name"
+//	Path from root:       "/components/component/state/model-name"
+func (n *Component_ModelNamePathAny) State() ygnmi.WildcardQuery[string] {
+	return ygnmi.NewWildcardQuery[string](
+		"Component",
+		true,
+		false,
+		true,
+		true,
+		true,
+		false,
+		ygnmi.NewNodePath(
+			[]string{"state", "model-name"},
+			nil,
+			n.parent,
+		),
+		func(gs ygot.ValidatedGoStruct) (string, bool) {
+			ret := gs.(*oc.Component).ModelName
 			if ret == nil {
 				var zero string
 				return zero, false
@@ -3815,6 +3914,46 @@ func (n *ComponentPathAny) MfgName() *Component_MfgNamePathAny {
 	return ps
 }
 
+// ModelName (leaf): A human readable string describing the model of a component.
+// This string is optional and should only be populated if part-no
+// is also populated.
+//
+//	Defining module:      "openconfig-platform"
+//	Instantiating module: "openconfig-platform"
+//	Path from parent:     "state/model-name"
+//	Path from root:       "/components/component/state/model-name"
+func (n *ComponentPath) ModelName() *Component_ModelNamePath {
+	ps := &Component_ModelNamePath{
+		NodePath: ygnmi.NewNodePath(
+			[]string{"state", "model-name"},
+			map[string]interface{}{},
+			n,
+		),
+		parent: n,
+	}
+	return ps
+}
+
+// ModelName (leaf): A human readable string describing the model of a component.
+// This string is optional and should only be populated if part-no
+// is also populated.
+//
+//	Defining module:      "openconfig-platform"
+//	Instantiating module: "openconfig-platform"
+//	Path from parent:     "state/model-name"
+//	Path from root:       "/components/component/state/model-name"
+func (n *ComponentPathAny) ModelName() *Component_ModelNamePathAny {
+	ps := &Component_ModelNamePathAny{
+		NodePath: ygnmi.NewNodePath(
+			[]string{"state", "model-name"},
+			map[string]interface{}{},
+			n,
+		),
+		parent: n,
+	}
+	return ps
+}
+
 // Name (leaf): Device name for the component -- this may not be a
 // configurable parameter on many implementations.  Where
 // component preconfiguration is supported, for example,
@@ -5089,182 +5228,6 @@ func (n *Component_BackplanePathAny) Config() ygnmi.WildcardQuery[*oc.Component_
 	)
 }
 
-// Component_Chassis_IdPath represents the /openconfig-platform/components/component/chassis/state/id YANG schema element.
-type Component_Chassis_IdPath struct {
-	*ygnmi.NodePath
-	parent ygnmi.PathStruct
-}
-
-// Component_Chassis_IdPathAny represents the wildcard version of the /openconfig-platform/components/component/chassis/state/id YANG schema element.
-type Component_Chassis_IdPathAny struct {
-	*ygnmi.NodePath
-	parent ygnmi.PathStruct
-}
-
-// State returns a Query that can be used in gNMI operations.
-//
-//	Defining module:      "openconfig-p4rt"
-//	Instantiating module: "openconfig-p4rt"
-//	Path from parent:     "state/id"
-//	Path from root:       "/components/component/chassis/state/id"
-func (n *Component_Chassis_IdPath) State() ygnmi.SingletonQuery[uint32] {
-	return ygnmi.NewSingletonQuery[uint32](
-		"Component_Chassis",
-		true,
-		false,
-		true,
-		true,
-		true,
-		false,
-		ygnmi.NewNodePath(
-			[]string{"state", "id"},
-			nil,
-			n.parent,
-		),
-		func(gs ygot.ValidatedGoStruct) (uint32, bool) {
-			ret := gs.(*oc.Component_Chassis).Id
-			if ret == nil {
-				var zero uint32
-				return zero, false
-			}
-			return *ret, true
-		},
-		func() ygot.ValidatedGoStruct { return new(oc.Component_Chassis) },
-		func() *ytypes.Schema {
-			return &ytypes.Schema{
-				Root:       &oc.Root{},
-				SchemaTree: oc.SchemaTree,
-				Unmarshal:  oc.Unmarshal,
-			}
-		},
-		nil,
-		nil,
-	)
-}
-
-// State returns a Query that can be used in gNMI operations.
-//
-//	Defining module:      "openconfig-p4rt"
-//	Instantiating module: "openconfig-p4rt"
-//	Path from parent:     "state/id"
-//	Path from root:       "/components/component/chassis/state/id"
-func (n *Component_Chassis_IdPathAny) State() ygnmi.WildcardQuery[uint32] {
-	return ygnmi.NewWildcardQuery[uint32](
-		"Component_Chassis",
-		true,
-		false,
-		true,
-		true,
-		true,
-		false,
-		ygnmi.NewNodePath(
-			[]string{"state", "id"},
-			nil,
-			n.parent,
-		),
-		func(gs ygot.ValidatedGoStruct) (uint32, bool) {
-			ret := gs.(*oc.Component_Chassis).Id
-			if ret == nil {
-				var zero uint32
-				return zero, false
-			}
-			return *ret, true
-		},
-		func() ygot.ValidatedGoStruct { return new(oc.Component_Chassis) },
-		func() *ytypes.Schema {
-			return &ytypes.Schema{
-				Root:       &oc.Root{},
-				SchemaTree: oc.SchemaTree,
-				Unmarshal:  oc.Unmarshal,
-			}
-		},
-		nil,
-		nil,
-	)
-}
-
-// Config returns a Query that can be used in gNMI operations.
-//
-//	Defining module:      "openconfig-p4rt"
-//	Instantiating module: "openconfig-p4rt"
-//	Path from parent:     "config/id"
-//	Path from root:       "/components/component/chassis/config/id"
-func (n *Component_Chassis_IdPath) Config() ygnmi.ConfigQuery[uint32] {
-	return ygnmi.NewConfigQuery[uint32](
-		"Component_Chassis",
-		false,
-		true,
-		true,
-		true,
-		true,
-		false,
-		ygnmi.NewNodePath(
-			[]string{"config", "id"},
-			nil,
-			n.parent,
-		),
-		func(gs ygot.ValidatedGoStruct) (uint32, bool) {
-			ret := gs.(*oc.Component_Chassis).Id
-			if ret == nil {
-				var zero uint32
-				return zero, false
-			}
-			return *ret, true
-		},
-		func() ygot.ValidatedGoStruct { return new(oc.Component_Chassis) },
-		func() *ytypes.Schema {
-			return &ytypes.Schema{
-				Root:       &oc.Root{},
-				SchemaTree: oc.SchemaTree,
-				Unmarshal:  oc.Unmarshal,
-			}
-		},
-		nil,
-		nil,
-	)
-}
-
-// Config returns a Query that can be used in gNMI operations.
-//
-//	Defining module:      "openconfig-p4rt"
-//	Instantiating module: "openconfig-p4rt"
-//	Path from parent:     "config/id"
-//	Path from root:       "/components/component/chassis/config/id"
-func (n *Component_Chassis_IdPathAny) Config() ygnmi.WildcardQuery[uint32] {
-	return ygnmi.NewWildcardQuery[uint32](
-		"Component_Chassis",
-		false,
-		true,
-		true,
-		true,
-		true,
-		false,
-		ygnmi.NewNodePath(
-			[]string{"config", "id"},
-			nil,
-			n.parent,
-		),
-		func(gs ygot.ValidatedGoStruct) (uint32, bool) {
-			ret := gs.(*oc.Component_Chassis).Id
-			if ret == nil {
-				var zero uint32
-				return zero, false
-			}
-			return *ret, true
-		},
-		func() ygot.ValidatedGoStruct { return new(oc.Component_Chassis) },
-		func() *ytypes.Schema {
-			return &ytypes.Schema{
-				Root:       &oc.Root{},
-				SchemaTree: oc.SchemaTree,
-				Unmarshal:  oc.Unmarshal,
-			}
-		},
-		nil,
-		nil,
-	)
-}
-
 // Component_ChassisPath represents the /openconfig-platform/components/component/chassis YANG schema element.
 type Component_ChassisPath struct {
 	*ygnmi.NodePath
@@ -5273,44 +5236,6 @@ type Component_ChassisPath struct {
 // Component_ChassisPathAny represents the wildcard version of the /openconfig-platform/components/component/chassis YANG schema element.
 type Component_ChassisPathAny struct {
 	*ygnmi.NodePath
-}
-
-// Id (leaf): An identifier used for the root of oc-p4rt:node-id. It is used to
-// indicate which oc-p4rt:node-id's belong to the same device
-//
-//	Defining module:      "openconfig-p4rt"
-//	Instantiating module: "openconfig-platform"
-//	Path from parent:     "*/id"
-//	Path from root:       "/components/component/chassis/*/id"
-func (n *Component_ChassisPath) Id() *Component_Chassis_IdPath {
-	ps := &Component_Chassis_IdPath{
-		NodePath: ygnmi.NewNodePath(
-			[]string{"*", "id"},
-			map[string]interface{}{},
-			n,
-		),
-		parent: n,
-	}
-	return ps
-}
-
-// Id (leaf): An identifier used for the root of oc-p4rt:node-id. It is used to
-// indicate which oc-p4rt:node-id's belong to the same device
-//
-//	Defining module:      "openconfig-p4rt"
-//	Instantiating module: "openconfig-platform"
-//	Path from parent:     "*/id"
-//	Path from root:       "/components/component/chassis/*/id"
-func (n *Component_ChassisPathAny) Id() *Component_Chassis_IdPathAny {
-	ps := &Component_Chassis_IdPathAny{
-		NodePath: ygnmi.NewNodePath(
-			[]string{"*", "id"},
-			map[string]interface{}{},
-			n,
-		),
-		parent: n,
-	}
-	return ps
 }
 
 // Utilization (container): Resource utilization of the component.
@@ -12575,6 +12500,17 @@ type Component_IntegratedCircuit_PipelineCounters_DropPathAny struct {
 // unexpectedly dropping packets. Occurrence of these drops on a stable
 // (no recent hardware or config changes) and otherwise healthy
 // switch needs further investigation.
+// This leaf counts packet discarded as result of corrupted
+// programming state in an INTEGRATED_CIRCUIT or corrupted data
+// structures of packet descriptors.
+//
+// Note: corrupted packets received on ingress interfaces should be counted
+// in `/interfaces/interface/state/counters/in-errors` and NOT counted as
+// adverse-aggregate. This is because incoming corrupted packets are NOT
+// a signal of adverse state of an INTEGRATED_CIRCUIT but rather of an
+// entity adjacent to the Interface, such as a cable or transceiver). Therefore
+// such drops SHOULD NOT be counted as adverse-aggregate to preserve
+// a clean signal of INTEGRATED_CIRCUIT adverse state.
 //
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"
@@ -12596,6 +12532,17 @@ func (n *Component_IntegratedCircuit_PipelineCounters_DropPath) AdverseAggregate
 // unexpectedly dropping packets. Occurrence of these drops on a stable
 // (no recent hardware or config changes) and otherwise healthy
 // switch needs further investigation.
+// This leaf counts packet discarded as result of corrupted
+// programming state in an INTEGRATED_CIRCUIT or corrupted data
+// structures of packet descriptors.
+//
+// Note: corrupted packets received on ingress interfaces should be counted
+// in `/interfaces/interface/state/counters/in-errors` and NOT counted as
+// adverse-aggregate. This is because incoming corrupted packets are NOT
+// a signal of adverse state of an INTEGRATED_CIRCUIT but rather of an
+// entity adjacent to the Interface, such as a cable or transceiver). Therefore
+// such drops SHOULD NOT be counted as adverse-aggregate to preserve
+// a clean signal of INTEGRATED_CIRCUIT adverse state.
 //
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"
@@ -12618,6 +12565,30 @@ func (n *Component_IntegratedCircuit_PipelineCounters_DropPathAny) AdverseAggreg
 // the hardware that may not be visible in through other congestion
 // indicators like interface discards or queue drop counters.
 //
+// This leaf counts packet discarded as result of exceeding
+// performance limits of an INTEGRATED_CIRCUT, when it processes
+// non-corrupted packets using legitimate, non-corrupted programming
+// state of the INTEGRATED_CIRCUIT.
+//
+// The typical example is overloading given IC with higher packet rate (pps)
+// then given chip can handle. For example, let's assume chip X can process
+// 3.6Bpps of incoming traffic and 2000 Mpps. However if average incoming
+// packet size is 150B, at full ingress rate this become 3000Mpps. Hence
+// 1/3 of packets would be cropped and should be counted against
+// congestion-aggregate.
+//
+// Another example is the case when some INTEGRATED_CIRCUIT internal data bus is
+// too narrow/slow for handling traffic. For example let's assume chip X needs to send
+// 3Tbps of traffic to an external buffer memory which has only 2Tbps access I/O.  In
+// this case packets would be discarded, because of congestion of memory I/O bus
+// which is part of the INTEGRATED_CIRCUIT.  Depending on the design of the
+// INTEGRATED_CIRCUIT, packets could be discarded even if interface queues are
+// not full, hence this scenario is NOT treated as QoS queue tail-drops nor WRED drops.
+//
+// Yet another example is the case where extremely large and long
+// ACL/filter requires more cycles to process than the INTEGRATED_CIRCUIT
+// has budgeted.
+//
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"
 //	Path from parent:     "state/congestion-aggregate"
@@ -12638,6 +12609,30 @@ func (n *Component_IntegratedCircuit_PipelineCounters_DropPath) CongestionAggreg
 // conditions of packet drops due to internal congestion in some block of
 // the hardware that may not be visible in through other congestion
 // indicators like interface discards or queue drop counters.
+//
+// This leaf counts packet discarded as result of exceeding
+// performance limits of an INTEGRATED_CIRCUT, when it processes
+// non-corrupted packets using legitimate, non-corrupted programming
+// state of the INTEGRATED_CIRCUIT.
+//
+// The typical example is overloading given IC with higher packet rate (pps)
+// then given chip can handle. For example, let's assume chip X can process
+// 3.6Bpps of incoming traffic and 2000 Mpps. However if average incoming
+// packet size is 150B, at full ingress rate this become 3000Mpps. Hence
+// 1/3 of packets would be cropped and should be counted against
+// congestion-aggregate.
+//
+// Another example is the case when some INTEGRATED_CIRCUIT internal data bus is
+// too narrow/slow for handling traffic. For example let's assume chip X needs to send
+// 3Tbps of traffic to an external buffer memory which has only 2Tbps access I/O.  In
+// this case packets would be discarded, because of congestion of memory I/O bus
+// which is part of the INTEGRATED_CIRCUIT.  Depending on the design of the
+// INTEGRATED_CIRCUIT, packets could be discarded even if interface queues are
+// not full, hence this scenario is NOT treated as QoS queue tail-drops nor WRED drops.
+//
+// Yet another example is the case where extremely large and long
+// ACL/filter requires more cycles to process than the INTEGRATED_CIRCUIT
+// has budgeted.
 //
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"
@@ -12846,6 +12841,23 @@ func (n *Component_IntegratedCircuit_PipelineCounters_DropPathAny) NoRoute() *Co
 // PacketProcessingAggregate (leaf): This aggregation of counters represents the conditions in which
 // packets are dropped due to legitimate forwarding decisions (ACL drops,
 // No Route etc.)
+// This counter counts packet discarded as result of processing
+// non-corrupted packet against legitimate, non-corrupted state
+// of INTEGRATED_CIRCUIT program (FIB content, ACL content, rate-limiting token-buckets)
+// which mandate packet drop. The examples of this class of discard are:
+// - dropping packets which destination address to no match any FIB entry
+// - dropping packets which destination address matches FIB entry pointing
+// to discard next-hop (e.g. route to null0)
+// - dropping packts due to ACL/packet filter decission
+// - dropping packets due to its TTL = 1
+// - dropping packets due to its size exceeds egress interface MTU and
+// packet can't be fragmented (IPv6 or do not fragment bit is set)
+// -  dropping packets due to uRPF rules (note: packet is counted here and
+// in separate, urpf-aggregate counter simultaneously)
+// - etc
+//
+// Note:The INTEGRATED_CIRCUIT is doing exactly what it is programmed
+// to do, and the packet is parsable.
 //
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"
@@ -12866,6 +12878,23 @@ func (n *Component_IntegratedCircuit_PipelineCounters_DropPath) PacketProcessing
 // PacketProcessingAggregate (leaf): This aggregation of counters represents the conditions in which
 // packets are dropped due to legitimate forwarding decisions (ACL drops,
 // No Route etc.)
+// This counter counts packet discarded as result of processing
+// non-corrupted packet against legitimate, non-corrupted state
+// of INTEGRATED_CIRCUIT program (FIB content, ACL content, rate-limiting token-buckets)
+// which mandate packet drop. The examples of this class of discard are:
+// - dropping packets which destination address to no match any FIB entry
+// - dropping packets which destination address matches FIB entry pointing
+// to discard next-hop (e.g. route to null0)
+// - dropping packts due to ACL/packet filter decission
+// - dropping packets due to its TTL = 1
+// - dropping packets due to its size exceeds egress interface MTU and
+// packet can't be fragmented (IPv6 or do not fragment bit is set)
+// -  dropping packets due to uRPF rules (note: packet is counted here and
+// in separate, urpf-aggregate counter simultaneously)
+// - etc
+//
+// Note:The INTEGRATED_CIRCUIT is doing exactly what it is programmed
+// to do, and the packet is parsable.
 //
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"
@@ -12923,6 +12952,8 @@ func (n *Component_IntegratedCircuit_PipelineCounters_DropPathAny) QueueingBlock
 // packets are dropped due to failing uRPF lookup check.  This counter
 // and the packet-processing-aggregate counter should be incremented
 // for each uRPF packet drop.
+// This counter counts packet discarded as result of Unicast Reverse
+// Path Forwarding verification.
 //
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"
@@ -12944,6 +12975,8 @@ func (n *Component_IntegratedCircuit_PipelineCounters_DropPath) UrpfAggregate() 
 // packets are dropped due to failing uRPF lookup check.  This counter
 // and the packet-processing-aggregate counter should be incremented
 // for each uRPF packet drop.
+// This counter counts packet discarded as result of Unicast Reverse
+// Path Forwarding verification.
 //
 //	Defining module:      "openconfig-platform-pipeline-counters"
 //	Instantiating module: "openconfig-platform"

@@ -16,6 +16,7 @@ using the following YANG input files:
   - public/release/models/acl/openconfig-packet-match.yang
   - public/release/models/aft/openconfig-aft.yang
   - public/release/models/aft/openconfig-aft-network-instance.yang
+  - public/release/models/aft/openconfig-aft-summary.yang
   - public/release/models/ate/openconfig-ate-flow.yang
   - public/release/models/ate/openconfig-ate-intf.yang
   - public/release/models/bfd/openconfig-bfd.yang
@@ -55,6 +56,7 @@ using the following YANG input files:
   - public/release/models/platform/openconfig-platform-software.yang
   - public/release/models/platform/openconfig-platform-transceiver.yang
   - public/release/models/platform/openconfig-platform.yang
+  - public/release/models/platform/openconfig-platform-common.yang
   - public/release/models/policy-forwarding/openconfig-policy-forwarding.yang
   - public/release/models/policy/openconfig-policy-types.yang
   - public/release/models/qos/openconfig-qos-elements.yang
@@ -65,6 +67,9 @@ using the following YANG input files:
   - public/release/models/sampling/openconfig-sampling-sflow.yang
   - public/release/models/segment-routing/openconfig-segment-routing-types.yang
   - public/release/models/system/openconfig-system.yang
+  - public/release/models/system/openconfig-system-bootz.yang
+  - public/release/models/system/openconfig-system-controlplane.yang
+  - public/release/models/system/openconfig-system-utilization.yang
   - public/release/models/types/openconfig-inet-types.yang
   - public/release/models/types/openconfig-types.yang
   - public/release/models/types/openconfig-yang-types.yang
@@ -233,6 +238,11 @@ var ΛEnum = map[string]map[int64]ygot.EnumDefinition{
 		2: {Name: "REMOVE"},
 		3: {Name: "REPLACE"},
 	},
+	"E_BgpPolicy_MatchSetOptionsType": {
+		1: {Name: "ANY"},
+		2: {Name: "ALL"},
+		3: {Name: "INVERT"},
+	},
 	"E_BgpTypes_AFI_SAFI_TYPE": {
 		1:  {Name: "IPV4_FLOWSPEC", DefiningModule: "openconfig-bgp-types"},
 		2:  {Name: "IPV4_LABELED_UNICAST", DefiningModule: "openconfig-bgp-types"},
@@ -338,6 +348,18 @@ var ΛEnum = map[string]map[int64]ygot.EnumDefinition{
 	"E_Bgp_RemovePrivateAsOption": {
 		1: {Name: "PRIVATE_AS_REMOVE_ALL", DefiningModule: "openconfig-bgp-types"},
 		2: {Name: "PRIVATE_AS_REPLACE_ALL", DefiningModule: "openconfig-bgp-types"},
+	},
+	"E_Bootz_Status": {
+		1:  {Name: "BOOTZ_UNSPECIFIED"},
+		2:  {Name: "BOOTZ_SENT"},
+		3:  {Name: "BOOTZ_RECEIVED"},
+		4:  {Name: "BOOTZ_CONFIGURATION_APPLIED"},
+		5:  {Name: "BOOTZ_OK"},
+		6:  {Name: "BOOTZ_OV_INVALID"},
+		7:  {Name: "BOOTZ_OS_UPGRADE_IN_PROGRESS"},
+		8:  {Name: "BOOTZ_OS_UPGRADE_COMPLETE"},
+		9:  {Name: "BOOTZ_OS_INVALID_IMAGE"},
+		10: {Name: "BOOTZ_CONFIGURATION_INVALID"},
 	},
 	"E_Capability_Flags": {
 		1: {Name: "FLOOD"},
@@ -2909,6 +2931,12 @@ func initΛEnumTypes() {
 		"/lldp/state/suppress-tlv-advertisement": {
 			reflect.TypeOf((E_LldpTypes_LLDP_TLV)(0)),
 		},
+		"/network-instances/network-instance/afts/aft-summaries/ipv4-unicast/protocols/protocol/state/origin-protocol": {
+			reflect.TypeOf((E_PolicyTypes_INSTALL_PROTOCOL_TYPE)(0)),
+		},
+		"/network-instances/network-instance/afts/aft-summaries/ipv6-unicast/protocols/protocol/state/origin-protocol": {
+			reflect.TypeOf((E_PolicyTypes_INSTALL_PROTOCOL_TYPE)(0)),
+		},
 		"/network-instances/network-instance/afts/ipv4-unicast/ipv4-entry/state/decapsulate-header": {
 			reflect.TypeOf((E_Aft_EncapsulationHeaderType)(0)),
 		},
@@ -4546,19 +4574,19 @@ func initΛEnumTypes() {
 			reflect.TypeOf((E_BgpTypes_BGP_WELL_KNOWN_STD_COMMUNITY)(0)),
 		},
 		"/routing-policy/defined-sets/bgp-defined-sets/community-sets/community-set/config/match-set-options": {
-			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+			reflect.TypeOf((E_BgpPolicy_MatchSetOptionsType)(0)),
 		},
 		"/routing-policy/defined-sets/bgp-defined-sets/community-sets/community-set/state/community-member": {
 			reflect.TypeOf((E_BgpTypes_BGP_WELL_KNOWN_STD_COMMUNITY)(0)),
 		},
 		"/routing-policy/defined-sets/bgp-defined-sets/community-sets/community-set/state/match-set-options": {
-			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+			reflect.TypeOf((E_BgpPolicy_MatchSetOptionsType)(0)),
 		},
 		"/routing-policy/defined-sets/bgp-defined-sets/ext-community-sets/ext-community-set/config/match-set-options": {
-			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+			reflect.TypeOf((E_BgpPolicy_MatchSetOptionsType)(0)),
 		},
 		"/routing-policy/defined-sets/bgp-defined-sets/ext-community-sets/ext-community-set/state/match-set-options": {
-			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+			reflect.TypeOf((E_BgpPolicy_MatchSetOptionsType)(0)),
 		},
 		"/routing-policy/defined-sets/prefix-sets/prefix-set/config/mode": {
 			reflect.TypeOf((E_PrefixSet_Mode)(0)),
@@ -4665,6 +4693,18 @@ func initΛEnumTypes() {
 		"/routing-policy/policy-definitions/policy-definition/statements/statement/conditions/bgp-conditions/match-as-path-set/state/match-set-options": {
 			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
 		},
+		"/routing-policy/policy-definitions/policy-definition/statements/statement/conditions/bgp-conditions/match-community-set/config/match-set-options": {
+			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+		},
+		"/routing-policy/policy-definitions/policy-definition/statements/statement/conditions/bgp-conditions/match-community-set/state/match-set-options": {
+			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+		},
+		"/routing-policy/policy-definitions/policy-definition/statements/statement/conditions/bgp-conditions/match-ext-community-set/config/match-set-options": {
+			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+		},
+		"/routing-policy/policy-definitions/policy-definition/statements/statement/conditions/bgp-conditions/match-ext-community-set/state/match-set-options": {
+			reflect.TypeOf((E_RoutingPolicy_MatchSetOptionsType)(0)),
+		},
 		"/routing-policy/policy-definitions/policy-definition/statements/statement/conditions/bgp-conditions/state/afi-safi-in": {
 			reflect.TypeOf((E_BgpTypes_AFI_SAFI_TYPE)(0)),
 		},
@@ -4751,6 +4791,21 @@ func initΛEnumTypes() {
 		},
 		"/system/alarms/alarm/state/type-id": {
 			reflect.TypeOf((E_AlarmTypes_OPENCONFIG_ALARM_TYPE_ID)(0)),
+		},
+		"/system/bootz/state/status": {
+			reflect.TypeOf((E_Bootz_Status)(0)),
+		},
+		"/system/control-plane-traffic/egress/acl/acl-set/config/type": {
+			reflect.TypeOf((E_Acl_ACL_TYPE)(0)),
+		},
+		"/system/control-plane-traffic/egress/acl/acl-set/state/type": {
+			reflect.TypeOf((E_Acl_ACL_TYPE)(0)),
+		},
+		"/system/control-plane-traffic/ingress/acl/acl-set/config/type": {
+			reflect.TypeOf((E_Acl_ACL_TYPE)(0)),
+		},
+		"/system/control-plane-traffic/ingress/acl/acl-set/state/type": {
+			reflect.TypeOf((E_Acl_ACL_TYPE)(0)),
 		},
 		"/system/cpus/cpu/state/index": {
 			reflect.TypeOf((E_Cpu_Index)(0)),

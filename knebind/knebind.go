@@ -35,6 +35,7 @@ import (
 	"github.com/openconfig/kne/topo"
 	"github.com/openconfig/kne/topo/node"
 	"github.com/openconfig/ondatra/binding"
+	"github.com/openconfig/ondatra/binding/introspect"
 	"github.com/openconfig/ondatra/knebind/creds"
 	"github.com/openconfig/ondatra/knebind/solver"
 	"golang.org/x/crypto/ssh"
@@ -137,6 +138,24 @@ type kneDUT struct {
 	bind *Bind
 }
 
+var _ introspect.Introspector = (*kneDUT)(nil)
+
+func (d *kneDUT) Dialer(svc introspect.Service) (*introspect.Dialer, error) {
+	svcName, ok := solver.ServiceName(svc)
+	if !ok {
+		return nil, fmt.Errorf("service %q has no known KNE name", svc)
+	}
+	svcPB, ok := d.Services[svcName]
+	if !ok {
+		return nil, fmt.Errorf("service %q not found on DUT %q", svcName, d.Name())
+	}
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: true}))} // NOLINT
+	if creds := d.newRPCCredentials(); creds != nil {
+		opts = append(opts, grpc.WithPerRPCCredentials(creds))
+	}
+	return makeDialer(svcPB, opts...), nil
+}
+
 func (d *kneDUT) resetConfig(ctx context.Context) error {
 	// TODO(alexmasi): Reduce duplication between this and CLI reset implementation.
 	name := d.Name()
@@ -186,7 +205,7 @@ func (d *kneDUT) pushConfig(ctx context.Context, config []byte) error {
 }
 
 func (d *kneDUT) DialGNMI(ctx context.Context, opts ...grpc.DialOption) (gpb.GNMIClient, error) {
-	conn, err := d.DialGRPC(ctx, "gnmi", opts...)
+	conn, err := d.dialGRPC(ctx, introspect.GNMI, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +213,7 @@ func (d *kneDUT) DialGNMI(ctx context.Context, opts ...grpc.DialOption) (gpb.GNM
 }
 
 func (d *kneDUT) DialGNOI(ctx context.Context, opts ...grpc.DialOption) (gnoigo.Clients, error) {
-	conn, err := d.DialGRPC(ctx, "gnoi", opts...)
+	conn, err := d.dialGRPC(ctx, introspect.GNOI, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +221,7 @@ func (d *kneDUT) DialGNOI(ctx context.Context, opts ...grpc.DialOption) (gnoigo.
 }
 
 func (d *kneDUT) DialGRIBI(ctx context.Context, opts ...grpc.DialOption) (grpb.GRIBIClient, error) {
-	conn, err := d.DialGRPC(ctx, "gribi", opts...)
+	conn, err := d.dialGRPC(ctx, introspect.GRIBI, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +229,7 @@ func (d *kneDUT) DialGRIBI(ctx context.Context, opts ...grpc.DialOption) (grpb.G
 }
 
 func (d *kneDUT) DialP4RT(ctx context.Context, opts ...grpc.DialOption) (p4pb.P4RuntimeClient, error) {
-	conn, err := d.DialGRPC(ctx, "p4rt", opts...)
+	conn, err := d.dialGRPC(ctx, introspect.P4RT, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +264,7 @@ func (c *gnsiConn) Acctz() acctzpb.AcctzClient {
 }
 
 func (d *kneDUT) DialGNSI(ctx context.Context, opts ...grpc.DialOption) (binding.GNSIClients, error) {
-	conn, err := d.DialGRPC(ctx, "gnsi", opts...)
+	conn, err := d.dialGRPC(ctx, introspect.GNSI, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -255,25 +274,16 @@ func (d *kneDUT) DialGNSI(ctx context.Context, opts ...grpc.DialOption) (binding
 // DialGRPC dials the service with the specified name.
 // It is exported so that test may use a type assertion to dial custom services.
 func (d *kneDUT) DialGRPC(ctx context.Context, serviceName string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-	s, err := d.Service(serviceName)
+	return d.dialGRPC(ctx, introspect.Service(serviceName), opts)
+}
+
+func (d *kneDUT) dialGRPC(ctx context.Context, svc introspect.Service, opts []grpc.DialOption) (*grpc.ClientConn, error) {
+	dialer, err := d.Dialer(svc)
 	if err != nil {
 		return nil, err
 	}
-	addr := serviceAddr(s)
-	credOpts := []grpc.DialOption{grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: true}))} // NOLINT
-	creds := d.newRPCCredentials()
-	if creds != nil {
-		credOpts = append(credOpts, grpc.WithPerRPCCredentials(creds))
-	}
-	opts = append(credOpts, opts...)
-	log.Infof("Dialing service %q on DUT %s@%s using credentials %+v", serviceName, d.Name(), addr, creds)
-	ctx, cancel := context.WithTimeout(ctx, grpcDialTimeout)
-	defer cancel()
-	conn, err := grpc.DialContext(ctx, addr, opts...)
-	if err != nil {
-		return nil, fmt.Errorf("DialContext(ctx, %s, %v): %w", addr, opts, err)
-	}
-	return conn, nil
+	log.Infof("Dialing service %q on DUT %s with options %v", svc, d.Name(), opts)
+	return dialer.Dial(ctx, opts...)
 }
 
 // serviceAddr returns the external IP address of a KNE service.
@@ -334,10 +344,6 @@ type kneCLI struct {
 	dut *kneDUT
 }
 
-func (c *kneCLI) SendCommand(ctx context.Context, cmd string) (string, error) {
-	return binding.SendCommandUsingRun(ctx, cmd, c)
-}
-
 func (c *kneCLI) RunCommand(_ context.Context, cmd string) (_ binding.CommandResult, rerr error) {
 	s, err := c.dut.Service("ssh")
 	if err != nil {
@@ -346,7 +352,7 @@ func (c *kneCLI) RunCommand(_ context.Context, cmd string) (_ binding.CommandRes
 	addr := serviceAddr(s)
 	userPass := c.dut.newRPCCredentials()
 	if userPass == nil {
-		return nil, errors.New("SendCommand requires node credentials be provided")
+		return nil, errors.New("RunCommand requires node credentials be provided")
 	}
 	log.Infof("Using credentials %v to SSH", userPass)
 	cfg := &ssh.ClientConfig{
@@ -405,9 +411,31 @@ type kneATE struct {
 	bind *Bind
 }
 
+var _ introspect.Introspector = (*kneATE)(nil)
+
+func (a *kneATE) Dialer(svc introspect.Service) (*introspect.Dialer, error) {
+	svcName, ok := solver.ServiceName(svc)
+	if !ok {
+		return nil, fmt.Errorf("service %q has no known KNE name", svc)
+	}
+	svcPB, ok := a.Services[svcName]
+	if !ok {
+		return nil, fmt.Errorf("service %q not found on ATE %q", svcName, a.Name())
+	}
+	var creds credentials.TransportCredentials
+	switch svc {
+	case introspect.OTG:
+		creds = insecure.NewCredentials()
+	case introspect.GNMI:
+		creds = credentials.NewTLS(&tls.Config{InsecureSkipVerify: true}) // NOLINT
+	default:
+		return nil, fmt.Errorf("credential for service %q on ATE %q not found", svc, a.Name())
+	}
+	return makeDialer(svcPB, grpc.WithTransportCredentials(creds)), nil
+}
+
 func (a *kneATE) DialOTG(ctx context.Context, opts ...grpc.DialOption) (gosnappi.GosnappiApi, error) {
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	conn, err := a.dialGRPC(ctx, "grpc", opts...)
+	conn, err := a.dialGRPC(ctx, introspect.OTG, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -419,28 +447,33 @@ func (a *kneATE) DialOTG(ctx context.Context, opts ...grpc.DialOption) (gosnappi
 }
 
 func (a *kneATE) DialGNMI(ctx context.Context, opts ...grpc.DialOption) (gpb.GNMIClient, error) {
-	opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{InsecureSkipVerify: true}))) // NOLINT
-	conn, err := a.dialGRPC(ctx, "gnmi", opts...)
+	conn, err := a.dialGRPC(ctx, introspect.GNMI, opts)
 	if err != nil {
 		return nil, err
 	}
 	return gpb.NewGNMIClient(conn), nil
 }
 
-func (a *kneATE) dialGRPC(ctx context.Context, serviceName string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-	s, err := a.Service(serviceName)
+func (a *kneATE) dialGRPC(ctx context.Context, svc introspect.Service, opts []grpc.DialOption) (*grpc.ClientConn, error) {
+	dialer, err := a.Dialer(svc)
 	if err != nil {
 		return nil, err
 	}
-	addr := serviceAddr(s)
-	log.Infof("Dialing service %q on ATE %s@%s", serviceName, a.Name(), addr)
-	ctx, cancel := context.WithTimeout(ctx, grpcDialTimeout)
-	defer cancel()
-	conn, err := grpc.DialContext(ctx, addr, opts...)
-	if err != nil {
-		return nil, fmt.Errorf("DialContext(ctx, %s, %v): %w", addr, opts, err)
+	log.Infof("Dialing service %q on ATE %s with options %v", svc, a.Name(), opts)
+	return dialer.Dial(ctx, opts...)
+}
+
+func makeDialer(svcPb *tpb.Service, opts ...grpc.DialOption) *introspect.Dialer {
+	return &introspect.Dialer{
+		DialFunc: func(ctx context.Context, addr string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+			ctx, cancel := context.WithTimeout(ctx, grpcDialTimeout)
+			defer cancel()
+			return grpc.DialContext(ctx, addr, opts...)
+		},
+		DialTarget: serviceAddr(svcPb),
+		DialOpts:   opts,
+		DevicePort: int(svcPb.GetInside()),
 	}
-	return conn, nil
 }
 
 func fileRelative(p string) (string, error) {
