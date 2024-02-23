@@ -140,9 +140,10 @@ func (n *RootPath) Acl() *acl.AclPath {
 //	Path from parent:     "components/component"
 //	Path from root:       "/components/component"
 func (n *RootPath) ComponentAny() *platform.ComponentPathAny {
+	n.DeviceRootBase.PutCustomData(ygnmi.OriginOverride, "openconfig-platform")
 	ps := &platform.ComponentPathAny{
 		NodePath: ygnmi.NewNodePath(
-			[]string{"openconfig-platform:components", "component"},
+			[]string{"components", "component"},
 			map[string]interface{}{"name": "*"},
 			n,
 		),
@@ -159,9 +160,10 @@ func (n *RootPath) ComponentAny() *platform.ComponentPathAny {
 //
 //	Name: string
 func (n *RootPath) Component(Name string) *platform.ComponentPath {
+	n.DeviceRootBase.PutCustomData(ygnmi.OriginOverride, "openconfig-platform")
 	ps := &platform.ComponentPath{
 		NodePath: ygnmi.NewNodePath(
-			[]string{"openconfig-platform:components", "component"},
+			[]string{"components", "component"},
 			map[string]interface{}{"name": Name},
 			n,
 		),
@@ -176,9 +178,10 @@ func (n *RootPath) Component(Name string) *platform.ComponentPath {
 //	Path from parent:     "components/component"
 //	Path from root:       "/components/component"
 func (n *RootPath) ComponentMap() *platform.ComponentPathMap {
+	n.DeviceRootBase.PutCustomData(ygnmi.OriginOverride, "openconfig-platform")
 	ps := &platform.ComponentPathMap{
 		NodePath: ygnmi.NewNodePath(
-			[]string{"openconfig-platform:components"},
+			[]string{"components"},
 			map[string]interface{}{},
 			n,
 		),
