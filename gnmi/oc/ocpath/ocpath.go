@@ -142,7 +142,7 @@ func (n *RootPath) Acl() *acl.AclPath {
 func (n *RootPath) ComponentAny() *platform.ComponentPathAny {
 	ps := &platform.ComponentPathAny{
 		NodePath: ygnmi.NewNodePath(
-			[]string{"components", "component"},
+			[]string{"openconfig-platform:components", "component"},
 			map[string]interface{}{"name": "*"},
 			n,
 		),
@@ -161,7 +161,7 @@ func (n *RootPath) ComponentAny() *platform.ComponentPathAny {
 func (n *RootPath) Component(Name string) *platform.ComponentPath {
 	ps := &platform.ComponentPath{
 		NodePath: ygnmi.NewNodePath(
-			[]string{"components", "component"},
+			[]string{"openconfig-platform:components", "component"},
 			map[string]interface{}{"name": Name},
 			n,
 		),
@@ -178,7 +178,7 @@ func (n *RootPath) Component(Name string) *platform.ComponentPath {
 func (n *RootPath) ComponentMap() *platform.ComponentPathMap {
 	ps := &platform.ComponentPathMap{
 		NodePath: ygnmi.NewNodePath(
-			[]string{"components"},
+			[]string{"openconfig-platform:components"},
 			map[string]interface{}{},
 			n,
 		),
